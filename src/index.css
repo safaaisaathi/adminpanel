@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #111A14;
+  --color-brand: #1B7A3F;
+  --color-brand-mid: #6DB36F;
+  --color-brand-leaf: #B5CF8A;
+  --color-brand-soft: #E4F1DF;
+  --color-accent: #F0873A;
+  --color-accent-strong: #B34A0B;
+  --color-background: #F3F6F2;
+  --color-surface: #FFFFFF;
+  --color-surface-muted: #E9F1E6;
+  --color-text-primary: #14201A;
+  --color-text-muted: #566259;
+  --color-border: #DCE5D9;
+  --color-border-strong: #74897A;
+}
+
+.dark {
+  --color-primary: #F2F7EE;
+  --color-brand: #6DB36F;
+  --color-background: #0E1612;
+  --color-surface: #16221B;
+  --color-surface-muted: #1E2D24;
+  --color-text-primary: #EAF2E6;
+  --color-text-muted: #9DB0A2;
+  --color-border: #2A3B31;
+  --color-border-strong: #5F7A68;
+}
+
+body {
+  font-family: 'Noto Sans', 'Noto Sans Gujarati', system-ui, -apple-system, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Custom leaflet popup overrides */
+.leaflet-popup-content-wrapper {
+  border-radius: 20px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+  padding: 4px !important;
+  background-color: #FFFFFF !important;
+  color: #14201A !important;
+}
+
+.dark .leaflet-popup-content-wrapper {
+  background-color: #16221B !important;
+  color: #EAF2E6 !important;
+}
+
+.leaflet-popup-tip {
+  background-color: #FFFFFF !important;
+}
+
+.dark .leaflet-popup-tip {
+  background-color: #16221B !important;
+}
+
+.leaflet-container {
+  font-family: inherit !important;
+}
