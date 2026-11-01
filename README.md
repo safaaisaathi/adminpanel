@@ -1,6 +1,11 @@
 # Safai Sathi - Admin Portal (PS000051)
 ## DDO Panchmahal Godhra • Citizen-Centric Garbage Collection & Sanitation Monitoring System
 
+### 🌐 Live Portal Links
+- **🚀 Live Public Link (Mobile & Desktop)**: [https://metres-hoping-affected-focused.trycloudflare.com](https://metres-hoping-affected-focused.trycloudflare.com)
+- **🌿 GitHub Pages**: [https://arpitvpandey.github.io/safaai-sathi/](https://arpitvpandey.github.io/safaai-sathi/)
+- **🖥️ Localhost (Development / Local)**: [http://localhost:3000](http://localhost:3000)
+
 Welcome to the **Safai Sathi Admin Portal**. This web platform is built strictly according to **PRD 3 of 3 (Admin Website Panel)** and **DESIGN.md (Safai Sathi Design System v1.0)**.
 
 ---
