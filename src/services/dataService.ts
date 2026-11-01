@@ -68,6 +68,13 @@ class DataService {
   private listeners: Set<() => void> = new Set();
   private simulationInterval: any = null;
 
+  constructor() {
+    if (this.complaints.length < 15) {
+      this.complaints = SEED_COMPLAINTS;
+      setStored('complaints', SEED_COMPLAINTS);
+    }
+  }
+
   public subscribe(listener: () => void) {
     this.listeners.add(listener);
     return () => this.listeners.delete(listener);

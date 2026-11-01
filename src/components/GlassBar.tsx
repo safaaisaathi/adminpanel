@@ -65,11 +65,12 @@ export const GlassBar: React.FC<GlassBarProps> = ({
 
   // Title and Breadcrumb mappings from Wireframe Specifications
   const getBreadcrumb = () => {
+    const isGu = lang === 'gu';
     const jurisdiction = currentUser?.role === 'ddo'
-      ? 'Panchmahal district'
+      ? (isGu ? 'પંચમહાલ જિલ્લો' : 'Panchmahal district')
       : currentUser?.role === 'inspector'
-      ? 'Meena Parmar'
-      : 'Godhra Nagarpalika';
+      ? (isGu ? 'મીના પરમાર (વોર્ડ ૫, ૬)' : 'Meena Parmar')
+      : (isGu ? 'ગોધરા નગરપાલિકા' : 'Godhra Nagarpalika');
 
     switch (currentScreen) {
       case 'overview':
@@ -200,7 +201,7 @@ export const GlassBar: React.FC<GlassBarProps> = ({
             <Search size={15} />
             <input
               type="text"
-              placeholder="Search..."
+              placeholder={lang === 'gu' ? 'શોધો (વાન, ડ્રાઇવર, ટિકિટ)...' : 'Search...'}
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);

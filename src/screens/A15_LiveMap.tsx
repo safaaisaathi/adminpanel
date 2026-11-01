@@ -24,7 +24,7 @@ interface A15LiveMapProps {
 }
 
 export const A15_LiveMap: React.FC<A15LiveMapProps> = ({ onNavigateTo }) => {
-  const { vans, drivers, wards, isSimulating, toggleSimulation } = useApp();
+  const { vans, drivers, wards, isSimulating, toggleSimulation, lang } = useApp();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'moving' | 'stopped' | 'offline'>('all');

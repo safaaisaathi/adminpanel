@@ -59,9 +59,40 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isMobileOpen,
   setIsMobileOpen,
 }) => {
-  const { currentUser, switchRole, unacknowledgedAlertsCount } = useApp();
+  const { currentUser, switchRole, unacknowledgedAlertsCount, lang } = useApp();
 
   const userRole: StaffRole = currentUser?.role || 'ddo';
+
+  const guNavLabels: Record<ScreenId, string> = {
+    overview: 'ડેશબોર્ડ ઝાંખી',
+    liveMap: 'લાઇવ વાન નકશો',
+    complaints: 'ફરિયાદ નિવારણ',
+    wards: 'વોર્ડ અને તાલુકા',
+    routes: 'વાન રૂટ્સ',
+    fleet: 'કાફલો અને વાહનો',
+    drivers: 'ડ્રાઇવર ડિરેક્ટરી',
+    allotment: 'ડ્રાઇવર ફાળવણી',
+    attendance: 'હાજરી રેકોર્ડ',
+    notices: 'જાહેર સૂચનાઓ',
+    reports: 'રિપોર્ટ્સ અને હીટમેપ',
+    alerts: 'ચેતવણીઓ',
+    analytics: 'વિશ્લેષણ',
+    auditLog: 'ઓડિટ લોગ',
+    settings: 'સિસ્ટમ સેટિંગ્સ',
+    staff: 'સ્ટાફ ડિરેક્ટરી',
+    login: 'સાઇન ઇન',
+    enrollDriver: 'ડ્રાઇવર નોંધણી',
+    driverProfile: 'ડ્રાઇવર પ્રોફાઇલ',
+    wardEditor: 'વોર્ડ સંપાદક',
+    tripReplay: 'ટ્રીપ રીપ્લે',
+  };
+
+  const getNavLabel = (id: ScreenId, defaultLabel: string): string => {
+    if (lang === 'gu' && guNavLabels[id]) {
+      return guNavLabels[id];
+    }
+    return defaultLabel;
+  };
 
   // Section 1: Navigation per Role Specification
   const getNavItems = () => {
@@ -129,10 +160,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const roleTitle = {
-    ddo: 'District Development Officer',
-    chief_officer: 'Chief Officer',
-    tdo: 'Taluka Development Officer',
-    inspector: 'Ward Inspector'
+    ddo: lang === 'gu' ? 'જિલ્લા વિકાસ અધિકારી' : 'District Development Officer',
+    chief_officer: lang === 'gu' ? 'ચીફ ઓફિસર (નગરપાલિકા)' : 'Chief Officer',
+    tdo: lang === 'gu' ? 'તાલુકા વિકાસ અધિકારી' : 'Taluka Development Officer',
+    inspector: lang === 'gu' ? 'વોર્ડ ઇન્સ્પેક્ટર' : 'Ward Inspector'
   }[userRole];
 
   return (
@@ -160,7 +191,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
               <div>
                 <h1 className="text-base font-bold tracking-tight text-[#14201A] dark:text-[#EAF2E6] leading-none">
-                  Safai Sathi
+                  {lang === 'gu' ? 'સફાઈ સાથી' : 'Safai Sathi'}
                 </h1>
               </div>
             </div>
@@ -191,7 +222,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 >
                   <div className="flex items-center gap-2.5">
                     <Icon size={16} />
-                    <span>{item.label}</span>
+                    <span>{getNavLabel(item.id, item.label)}</span>
                   </div>
 
                   {item.badge !== undefined && item.badge > 0 && (
@@ -252,7 +283,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               }`}
             >
               <Icon size={16} />
-              {isActive && <span className="text-[11px] font-bold">{item.label}</span>}
+              {isActive && <span className="text-[11px] font-bold">{getNavLabel(item.id, item.label)}</span>}
             </button>
           );
         })}
