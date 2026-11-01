@@ -1,27 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
+import { ScreenId } from './Sidebar';
 import {
+  Search,
+  Bell,
+  Plus,
+  Radio,
+  Check,
+  User,
+  Truck,
+  Building2,
+  FileText,
+  AlertCircle,
   Menu,
   Moon,
   Sun,
-  KeyRound,
-  RotateCcw,
-  Sparkles,
-  ChevronDown,
-  User,
-  Shield,
-  Check
+  X
 } from 'lucide-react';
-import { StaffRole } from '../types';
-import { getSavedFirebaseConfig, saveFirebaseConfig } from '../services/firebaseConfig';
 
 interface GlassBarProps {
-  title?: string;
+  currentScreen: ScreenId;
+  onNavigateTo: (screen: ScreenId, param?: any) => void;
+  onPageAction?: () => void;
   onToggleMobileMenu?: () => void;
 }
 
 export const GlassBar: React.FC<GlassBarProps> = ({
-  title,
+  currentScreen,
+  onNavigateTo,
+  onPageAction,
   onToggleMobileMenu,
 }) => {
   const {
@@ -30,271 +37,389 @@ export const GlassBar: React.FC<GlassBarProps> = ({
     theme,
     toggleTheme,
     currentUser,
-    setCurrentUser,
-    availableStaff,
-    t,
-    resetAllData,
+    drivers,
+    vans,
+    complaints,
+    wards,
+    unacknowledgedAlertsCount,
+    isSimulating,
+    toggleSimulation,
+    switchRole
   } = useApp();
 
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [showFirebaseModal, setShowFirebaseModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [showRoleDropdown, setShowRoleDropdown] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
 
-  // Firebase config state
-  const currentConfig = getSavedFirebaseConfig();
-  const [fbApiKey, setFbApiKey] = useState(currentConfig.apiKey || '');
-  const [fbProjectId, setFbProjectId] = useState(currentConfig.projectId || '');
-  const [fbAuthDomain, setFbAuthDomain] = useState(currentConfig.authDomain || '');
-  const [fbStorageBucket, setFbStorageBucket] = useState(currentConfig.storageBucket || '');
+  // Close search dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setIsSearchOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
-  const handleSaveFirebase = (e: React.FormEvent) => {
-    e.preventDefault();
-    saveFirebaseConfig({
-      apiKey: fbApiKey.trim(),
-      projectId: fbProjectId.trim(),
-      authDomain: fbAuthDomain.trim(),
-      storageBucket: fbStorageBucket.trim(),
-    });
+  // Title and Breadcrumb mappings from Wireframe Specifications
+  const getBreadcrumb = () => {
+    const jurisdiction = currentUser?.role === 'ddo'
+      ? 'Panchmahal district'
+      : currentUser?.role === 'inspector'
+      ? 'Meena Parmar'
+      : 'Godhra Nagarpalika';
+
+    switch (currentScreen) {
+      case 'overview':
+        return {
+          title: currentUser?.role === 'inspector' ? 'Ward 5 and 6, today' : 'District overview',
+          breadcrumb: jurisdiction
+        };
+      case 'liveMap':
+        return { title: 'Live map', breadcrumb: 'All running vehicles in Godhra Nagarpalika' };
+      case 'complaints':
+        return { title: 'Complaints', breadcrumb: 'Godhra Nagarpalika' };
+      case 'wards':
+        return { title: 'Wards', breadcrumb: 'Godhra Nagarpalika' };
+      case 'wardEditor':
+        return { title: 'New ward', breadcrumb: 'Wards' };
+      case 'routes':
+        return { title: 'Routes', breadcrumb: 'Godhra Nagarpalika' };
+      case 'fleet':
+        return { title: 'Fleet and vans', breadcrumb: 'Godhra Nagarpalika' };
+      case 'drivers':
+        return { title: 'Drivers', breadcrumb: 'Ward 5 and 6' };
+      case 'enrollDriver':
+        return { title: 'Enroll driver', breadcrumb: 'Drivers' };
+      case 'driverProfile':
+        return { title: 'Driver profile', breadcrumb: 'Drivers' };
+      case 'allotment':
+        return { title: 'Allotment', breadcrumb: 'Wards created by your Chief Officer' };
+      case 'attendance':
+        return { title: 'Attendance', breadcrumb: 'Ward 5 and 6' };
+      case 'tripReplay':
+        return { title: 'Trip replay', breadcrumb: 'Ramesh Bhai, 28 Oct' };
+      case 'notices':
+        return { title: 'Notices', breadcrumb: 'Godhra Nagarpalika' };
+      case 'alerts':
+        return { title: 'Alerts', breadcrumb: 'Godhra Nagarpalika' };
+      case 'reports':
+        return { title: 'Reports', breadcrumb: 'Godhra Nagarpalika' };
+      case 'analytics':
+        return { title: 'Analytics', breadcrumb: 'Panchmahal district' };
+      case 'auditLog':
+        return { title: 'Audit log', breadcrumb: 'Every change is recorded and cannot be edited' };
+      case 'settings':
+        return { title: 'Settings', breadcrumb: 'District rules' };
+      case 'staff':
+        return { title: 'Staff', breadcrumb: 'Access' };
+      default:
+        return { title: 'Safai Sathi', breadcrumb: 'Panchmahal district' };
+    }
   };
 
-  const roleLabel = (role: StaffRole) => {
-    return t.roles[role] || role;
+  const { title, breadcrumb } = getBreadcrumb();
+
+  // Page Action Button configuration
+  const getPageActionButton = () => {
+    switch (currentScreen) {
+      case 'wards':
+        return currentUser?.role === 'inspector'
+          ? null
+          : { label: 'Create ward', action: () => onNavigateTo('wardEditor') };
+      case 'routes':
+        return { label: '+ New route', action: onPageAction || (() => {}) };
+      case 'fleet':
+        return { label: '+ Register van', action: onPageAction || (() => {}) };
+      case 'drivers':
+        return { label: '+ Enroll driver', action: () => onNavigateTo('enrollDriver') };
+      case 'staff':
+        return { label: 'Add staff', action: onPageAction || (() => {}) };
+      case 'allotment':
+        return { label: 'Save allotments', action: onPageAction || (() => {}) };
+      default:
+        return null;
+    }
   };
+
+  const pageAction = getPageActionButton();
+
+  // Search Results filtering
+  const q = searchQuery.toLowerCase().trim();
+  const searchResults = q
+    ? {
+        drivers: drivers.filter(d => d.name.toLowerCase().includes(q) || d.driverId.toLowerCase().includes(q) || d.phone.includes(q)),
+        vans: vans.filter(v => v.plateNo.toLowerCase().includes(q)),
+        complaints: complaints.filter(c => c.ticketId.toLowerCase().includes(q) || c.category.toLowerCase().includes(q)),
+        wards: wards.filter(w => w.name.toLowerCase().includes(q) || w.code.toLowerCase().includes(q)),
+      }
+    : null;
+
+  const totalResultsCount = searchResults
+    ? searchResults.drivers.length + searchResults.vans.length + searchResults.complaints.length + searchResults.wards.length
+    : 0;
 
   return (
-    <>
-      <header className="sticky top-0 z-30 mx-2 sm:mx-4 mt-2 sm:mt-3 mb-3 sm:mb-4 flex items-center justify-between rounded-full bg-white/90 dark:bg-[#16221B]/90 backdrop-blur-md px-3 sm:px-5 py-2 sm:py-2.5 shadow-elev1 dark:shadow-elev1-dark border border-[#DCE5D9] dark:border-[#2A3B31]">
-        {/* Left: Mobile Menu Toggle + Screen Title */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Mobile Menu Button */}
-          <button
-            onClick={onToggleMobileMenu}
-            className="flex h-9 w-9 lg:hidden items-center justify-center rounded-full bg-[#F3F6F2] dark:bg-[#1E2D24] text-[#14201A] dark:text-[#EAF2E6] hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
-            aria-label="Toggle Navigation"
-          >
-            <Menu size={18} />
-          </button>
+    <header className="sticky top-0 z-30 flex items-center justify-between bg-[#F8FAF7] dark:bg-[#0E1612] px-6 py-4">
+      {/* Left: Mobile Menu + Title & Breadcrumb */}
+      <div className="flex items-center gap-3">
+        <button
+          onClick={onToggleMobileMenu}
+          className="lg:hidden p-2 rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-800"
+        >
+          <Menu size={18} />
+        </button>
 
-          <div>
-            <h1 className="text-sm sm:text-base font-bold text-[#14201A] dark:text-[#EAF2E6] leading-tight">
-              {title || t.appName}
-            </h1>
-            <p className="text-[10px] sm:text-xs text-[#566259] dark:text-[#9DB0A2] leading-none">
-              Panchmahal Godhra • {currentUser?.role === 'ddo' ? 'All Wards' : roleLabel(currentUser?.role || 'inspector')}
-            </p>
-          </div>
+        <div>
+          <h1 className="text-xl font-bold tracking-tight text-[#14201A] dark:text-[#EAF2E6] leading-none">
+            {title}
+          </h1>
+          <p className="text-xs text-[#566259] dark:text-[#9DB0A2] mt-1">
+            {breadcrumb}
+          </p>
         </div>
+      </div>
 
-        {/* Right: Language, Theme, Unified User Profile Pill */}
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          {/* Bilingual Language Switcher (Compact Pill) */}
-          <div className="flex items-center rounded-full bg-[#E9F1E6] dark:bg-[#1E2D24] p-0.5 border border-[#DCE5D9] dark:border-[#2A3B31]">
-            <button
-              onClick={() => setLang('gu')}
-              className={`rounded-full px-2 sm:px-2.5 py-1 text-[11px] font-semibold transition-all ${
-                lang === 'gu'
-                  ? 'bg-[#111A14] text-white dark:bg-[#F2F7EE] dark:text-[#0E1612]'
-                  : 'text-[#566259] dark:text-[#9DB0A2] hover:text-black dark:hover:text-white'
-              }`}
-            >
-              ગુ
-            </button>
-            <button
-              onClick={() => setLang('en')}
-              className={`rounded-full px-2 sm:px-2.5 py-1 text-[11px] font-semibold transition-all ${
-                lang === 'en'
-                  ? 'bg-[#111A14] text-white dark:bg-[#F2F7EE] dark:text-[#0E1612]'
-                  : 'text-[#566259] dark:text-[#9DB0A2] hover:text-black dark:hover:text-white'
-              }`}
-            >
-              EN
-            </button>
-          </div>
-
-          {/* Theme Toggle (Light / Dark) */}
+      {/* Right Controls Area: Page Action + Search + Lang + Bell + Role Selector */}
+      <div className="flex items-center gap-3">
+        {/* Page Action Button (Section 1.2 Black Pill) */}
+        {pageAction && (
           <button
-            onClick={toggleTheme}
-            className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full border border-[#DCE5D9] dark:border-[#2A3B31] bg-white dark:bg-[#16221B] text-[#14201A] dark:text-[#EAF2E6] hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-            title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}
-            aria-label="Toggle Theme"
+            onClick={pageAction.action}
+            className="hidden sm:flex items-center gap-1.5 rounded-full bg-[#111A14] hover:bg-black text-white dark:bg-[#F2F7EE] dark:hover:bg-white dark:text-[#0E1612] px-4 py-2 text-xs font-semibold shadow-sm transition-transform active:scale-95"
           >
-            {theme === 'light' ? <Moon size={15} /> : <Sun size={15} />}
+            <span>{pageAction.label}</span>
           </button>
+        )}
 
-          {/* Unified Officer Profile & Scope Menu Button */}
-          <div className="relative">
-            <button
-              onClick={() => setShowProfileMenu(!showProfileMenu)}
-              className="flex items-center gap-1.5 rounded-full border border-[#DCE5D9] dark:border-[#2A3B31] bg-[#F3F6F2] dark:bg-[#1E2D24] pl-1.5 pr-2.5 sm:pr-3 py-1 text-xs font-semibold text-[#14201A] dark:text-[#EAF2E6] hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
-            >
-              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#1B7A3F] text-white text-[10px] font-bold">
-                {currentUser?.name.charAt(0) || 'U'}
-              </div>
-              <span className="hidden sm:inline-block max-w-[120px] truncate">
-                {currentUser?.name.split(' ')[0]}
-              </span>
-              <ChevronDown size={13} className="text-neutral-500" />
-            </button>
-
-            {/* Profile & Role Switcher Popup */}
-            {showProfileMenu && (
-              <div className="absolute right-0 mt-2 w-72 rounded-[24px] bg-white dark:bg-[#16221B] p-3 shadow-elev3 dark:shadow-elev3-dark border border-[#DCE5D9] dark:border-[#2A3B31] z-50 animate-in fade-in duration-150">
-                {/* Active User Card */}
-                <div className="p-3 rounded-2xl bg-[#F3F6F2] dark:bg-[#1E2D24] mb-2">
-                  <div className="font-bold text-xs text-[#14201A] dark:text-[#EAF2E6]">
-                    {currentUser?.name}
-                  </div>
-                  <div className="text-[11px] font-medium text-[#1B7A3F] dark:text-[#6DB36F]">
-                    {roleLabel(currentUser?.role || 'inspector')}
-                  </div>
-                  <div className="text-[10px] text-[#566259] dark:text-[#9DB0A2] mt-0.5 truncate">
-                    {currentUser?.phone}
-                  </div>
-                </div>
-
-                {/* Quick Role Switcher */}
-                <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-[#566259] dark:text-[#9DB0A2]">
-                  Switch Role Scope
-                </div>
-                <div className="space-y-1 mb-2">
-                  {availableStaff.map((staff) => {
-                    const isSelected = currentUser?.id === staff.id;
-                    return (
-                      <button
-                        key={staff.id}
-                        onClick={() => {
-                          setCurrentUser(staff);
-                          setShowProfileMenu(false);
-                        }}
-                        className={`flex w-full items-center justify-between rounded-xl px-2.5 py-1.5 text-xs text-left transition-colors ${
-                          isSelected
-                            ? 'bg-[#E4F1DF] dark:bg-[#1F3A2A] font-semibold text-[#1B7A3F] dark:text-[#6DB36F]'
-                            : 'text-[#14201A] dark:text-[#EAF2E6] hover:bg-neutral-100 dark:hover:bg-neutral-800'
-                        }`}
-                      >
-                        <div className="truncate pr-2">
-                          <div className="font-medium truncate">{staff.name}</div>
-                          <div className="text-[10px] text-[#566259] dark:text-[#9DB0A2]">
-                            {roleLabel(staff.role)}
-                          </div>
-                        </div>
-                        {isSelected && <Check size={14} className="shrink-0 text-[#1B7A3F]" />}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Database Settings & Reset Actions */}
-                <div className="pt-2 border-t border-[#DCE5D9] dark:border-[#2A3B31] space-y-1">
-                  <button
-                    onClick={() => {
-                      setShowProfileMenu(false);
-                      setShowFirebaseModal(true);
-                    }}
-                    className="flex w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-xs text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800"
-                  >
-                    <KeyRound size={13} className="text-[#1B7A3F]" />
-                    <span>Firebase Connection Settings</span>
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      resetAllData();
-                      setShowProfileMenu(false);
-                    }}
-                    className="flex w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-xs text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800"
-                  >
-                    <RotateCcw size={13} />
-                    <span>Reset Demo Data</span>
-                  </button>
-                </div>
-              </div>
+        {/* Global Search Pill & Dropdown */}
+        <div ref={searchRef} className="relative">
+          <div className="flex items-center gap-2 rounded-full bg-white dark:bg-[#16221B] border border-[#E5EAE3] dark:border-[#2A3B31] px-3.5 py-1.5 text-xs text-[#566259] dark:text-[#9DB0A2] w-48 sm:w-60 focus-within:w-72 focus-within:border-[#1B7A3F] transition-all">
+            <Search size={15} />
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setIsSearchOpen(true);
+              }}
+              onFocus={() => setIsSearchOpen(true)}
+              className="w-full bg-transparent outline-none text-xs text-[#14201A] dark:text-[#EAF2E6] placeholder:text-[#566259]"
+            />
+            {searchQuery && (
+              <button onClick={() => setSearchQuery('')} className="text-neutral-400 hover:text-neutral-600">
+                <X size={13} />
+              </button>
             )}
           </div>
-        </div>
-      </header>
 
-      {/* Firebase Credentials Modal */}
-      {showFirebaseModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md rounded-[28px] bg-white dark:bg-[#16221B] p-5 sm:p-6 shadow-elev3 border border-[#DCE5D9] dark:border-[#2A3B31]">
-            <div className="flex items-center justify-between pb-3 border-b border-neutral-100 dark:border-neutral-800">
-              <div className="flex items-center gap-2">
-                <Sparkles className="text-[#1B7A3F]" size={18} />
-                <h3 className="font-semibold text-base text-[#14201A] dark:text-[#EAF2E6]">
-                  Firebase API Connection
-                </h3>
+          {/* Search Dropdown Popup */}
+          {isSearchOpen && searchQuery && (
+            <div className="absolute right-0 mt-2 w-80 rounded-2xl bg-white dark:bg-[#16221B] shadow-2xl border border-[#E5EAE3] dark:border-[#2A3B31] p-2 z-50 max-h-96 overflow-y-auto">
+              <div className="px-3 py-1.5 text-[11px] font-bold text-neutral-400 uppercase tracking-wider">
+                {totalResultsCount} Results
+              </div>
+
+              {totalResultsCount === 0 ? (
+                <div className="p-4 text-center text-xs text-neutral-500">
+                  No matching driver, van, complaint or ward.
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  {/* Drivers */}
+                  {searchResults?.drivers.map(d => (
+                    <button
+                      key={d.id}
+                      onClick={() => {
+                        onNavigateTo('driverProfile', d);
+                        setIsSearchOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 text-left transition-colors"
+                    >
+                      <User size={15} className="text-[#1B7A3F]" />
+                      <div className="text-xs">
+                        <div className="font-bold text-[#14201A] dark:text-[#EAF2E6]">{d.name}</div>
+                        <div className="text-[10px] text-neutral-500">{d.driverId} • {d.phone}</div>
+                      </div>
+                    </button>
+                  ))}
+
+                  {/* Vans */}
+                  {searchResults?.vans.map(v => (
+                    <button
+                      key={v.id}
+                      onClick={() => {
+                        onNavigateTo('liveMap');
+                        setIsSearchOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 text-left transition-colors"
+                    >
+                      <Truck size={15} className="text-blue-600" />
+                      <div className="text-xs">
+                        <div className="font-bold text-[#14201A] dark:text-[#EAF2E6]">{v.plateNo}</div>
+                        <div className="text-[10px] text-neutral-500">{v.type || 'Tata Ace'} • {v.driverName}</div>
+                      </div>
+                    </button>
+                  ))}
+
+                  {/* Complaints */}
+                  {searchResults?.complaints.map(c => (
+                    <button
+                      key={c.id}
+                      onClick={() => {
+                        onNavigateTo('complaints', c);
+                        setIsSearchOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 text-left transition-colors"
+                    >
+                      <AlertCircle size={15} className="text-amber-600" />
+                      <div className="text-xs">
+                        <div className="font-bold text-[#14201A] dark:text-[#EAF2E6]">{c.ticketId}</div>
+                        <div className="text-[10px] text-neutral-500">{c.category.replace('_', ' ')} • {c.status}</div>
+                      </div>
+                    </button>
+                  ))}
+
+                  {/* Wards */}
+                  {searchResults?.wards.map(w => (
+                    <button
+                      key={w.id}
+                      onClick={() => {
+                        onNavigateTo('wards', w);
+                        setIsSearchOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 text-left transition-colors"
+                    >
+                      <Building2 size={15} className="text-purple-600" />
+                      <div className="text-xs">
+                        <div className="font-bold text-[#14201A] dark:text-[#EAF2E6]">{w.name} ({w.nameGu})</div>
+                        <div className="text-[10px] text-neutral-500">{w.code} • {w.areaKm2} km²</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Language Toggle: ગુ | EN */}
+        <div className="flex items-center rounded-full bg-white dark:bg-[#16221B] border border-[#E5EAE3] dark:border-[#2A3B31] p-0.5 text-xs font-semibold">
+          <button
+            onClick={() => setLang('gu')}
+            className={`rounded-full px-2.5 py-1 transition-colors ${
+              lang === 'gu'
+                ? 'bg-[#111A14] text-white dark:bg-[#F2F7EE] dark:text-[#0E1612]'
+                : 'text-[#566259] dark:text-[#9DB0A2] hover:text-black dark:hover:text-white'
+            }`}
+          >
+            ગુ
+          </button>
+          <button
+            onClick={() => setLang('en')}
+            className={`rounded-full px-2.5 py-1 transition-colors ${
+              lang === 'en'
+                ? 'bg-[#111A14] text-white dark:bg-[#F2F7EE] dark:text-[#0E1612]'
+                : 'text-[#566259] dark:text-[#9DB0A2] hover:text-black dark:hover:text-white'
+            }`}
+          >
+            EN
+          </button>
+        </div>
+
+        {/* Theme Toggle */}
+        <button
+          onClick={toggleTheme}
+          className="flex h-8 w-8 items-center justify-center rounded-full bg-white dark:bg-[#16221B] border border-[#E5EAE3] dark:border-[#2A3B31] text-[#566259] dark:text-[#9DB0A2] hover:text-black dark:hover:text-white transition-colors"
+          title="Toggle theme"
+        >
+          {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+        </button>
+
+        {/* Live GPS Simulation Toggle (for live demoing) */}
+        <button
+          onClick={toggleSimulation}
+          className={`hidden md:flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold border transition-colors ${
+            isSimulating
+              ? 'bg-emerald-50 text-emerald-700 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-400 animate-pulse'
+              : 'bg-white text-neutral-600 border-[#E5EAE3] dark:bg-[#16221B] dark:text-neutral-400'
+          }`}
+          title="Live GPS Fleet movement simulation"
+        >
+          <span className={`h-2 w-2 rounded-full ${isSimulating ? 'bg-emerald-500' : 'bg-neutral-400'}`} />
+          <span>{isSimulating ? 'Live' : 'Standby'}</span>
+        </button>
+
+        {/* Alerts Bell Notification Icon with Badge */}
+        <button
+          onClick={() => onNavigateTo('alerts')}
+          className="relative flex h-8 w-8 items-center justify-center rounded-full bg-white dark:bg-[#16221B] border border-[#E5EAE3] dark:border-[#2A3B31] text-[#566259] dark:text-[#9DB0A2] hover:text-black dark:hover:text-white transition-colors"
+          title="View system alerts"
+        >
+          <Bell size={16} />
+          {unacknowledgedAlertsCount > 0 && (
+            <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#D93025] px-1 text-[10px] font-bold text-white shadow-sm">
+              {unacknowledgedAlertsCount}
+            </span>
+          )}
+        </button>
+
+        {/* Quick Role Switcher Pill (Section 1 Wireframe) */}
+        <div className="relative">
+          <button
+            onClick={() => setShowRoleDropdown(!showRoleDropdown)}
+            className="flex items-center gap-2 rounded-full bg-white dark:bg-[#16221B] border border-[#E5EAE3] dark:border-[#2A3B31] p-1 pr-3 text-xs font-semibold text-[#14201A] dark:text-[#EAF2E6] hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+          >
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#1B7A3F] text-[10px] font-bold text-white">
+              {currentUser?.role === 'ddo' ? 'DA' : currentUser?.role === 'chief_officer' ? 'RS' : 'MP'}
+            </div>
+            <span className="hidden sm:inline">{currentUser?.name?.split(' ')[0]}</span>
+          </button>
+
+          {showRoleDropdown && (
+            <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-white dark:bg-[#16221B] shadow-2xl border border-[#E5EAE3] dark:border-[#2A3B31] p-2 z-50">
+              <div className="px-3 py-1.5 text-[11px] font-bold text-neutral-400 uppercase tracking-wider">
+                Switch Role Scope
               </div>
               <button
-                onClick={() => setShowFirebaseModal(false)}
-                className="text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
+                onClick={() => { switchRole('ddo'); setShowRoleDropdown(false); }}
+                className={`w-full flex items-center justify-between p-2 rounded-xl text-left text-xs transition-colors ${currentUser?.role === 'ddo' ? 'bg-[#F3F6F2] dark:bg-[#1E2D24] font-bold' : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'}`}
               >
-                ✕
+                <div>
+                  <div className="text-[#14201A] dark:text-[#EAF2E6]">Dr. A. Patel</div>
+                  <div className="text-[10px] text-neutral-500">District Development Officer</div>
+                </div>
+                {currentUser?.role === 'ddo' && <Check size={14} className="text-[#1B7A3F]" />}
+              </button>
+
+              <button
+                onClick={() => { switchRole('chief_officer'); setShowRoleDropdown(false); }}
+                className={`w-full flex items-center justify-between p-2 rounded-xl text-left text-xs transition-colors ${currentUser?.role === 'chief_officer' ? 'bg-[#F3F6F2] dark:bg-[#1E2D24] font-bold' : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'}`}
+              >
+                <div>
+                  <div className="text-[#14201A] dark:text-[#EAF2E6]">Rakesh Shah</div>
+                  <div className="text-[10px] text-neutral-500">Chief Officer (Godhra NP)</div>
+                </div>
+                {currentUser?.role === 'chief_officer' && <Check size={14} className="text-[#1B7A3F]" />}
+              </button>
+
+              <button
+                onClick={() => { switchRole('inspector'); setShowRoleDropdown(false); }}
+                className={`w-full flex items-center justify-between p-2 rounded-xl text-left text-xs transition-colors ${currentUser?.role === 'inspector' ? 'bg-[#F3F6F2] dark:bg-[#1E2D24] font-bold' : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'}`}
+              >
+                <div>
+                  <div className="text-[#14201A] dark:text-[#EAF2E6]">Meena Parmar</div>
+                  <div className="text-[10px] text-neutral-500">Ward Inspector (Ward 5, 6)</div>
+                </div>
+                {currentUser?.role === 'inspector' && <Check size={14} className="text-[#1B7A3F]" />}
               </button>
             </div>
-
-            <p className="mt-2.5 text-xs text-[#566259] dark:text-[#9DB0A2]">
-              Connect your live Firebase credentials below. The portal switches seamlessly between live Firebase and high-fidelity simulated storage.
-            </p>
-
-            <form onSubmit={handleSaveFirebase} className="mt-4 space-y-3">
-              <div>
-                <label className="block text-xs font-semibold text-[#14201A] dark:text-[#EAF2E6] mb-1">
-                  API Key
-                </label>
-                <input
-                  type="text"
-                  value={fbApiKey}
-                  onChange={(e) => setFbApiKey(e.target.value)}
-                  placeholder="AIzaSy..."
-                  className="w-full rounded-full border border-[#74897A] dark:border-[#5F7A68] bg-white dark:bg-[#1E2D24] px-4 py-2 text-xs"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-[#14201A] dark:text-[#EAF2E6] mb-1">
-                  Project ID
-                </label>
-                <input
-                  type="text"
-                  value={fbProjectId}
-                  onChange={(e) => setFbProjectId(e.target.value)}
-                  placeholder="safaai-sathi-godhra"
-                  className="w-full rounded-full border border-[#74897A] dark:border-[#5F7A68] bg-white dark:bg-[#1E2D24] px-4 py-2 text-xs"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-[#14201A] dark:text-[#EAF2E6] mb-1">
-                  Storage Bucket
-                </label>
-                <input
-                  type="text"
-                  value={fbStorageBucket}
-                  onChange={(e) => setFbStorageBucket(e.target.value)}
-                  placeholder="safaai-sathi-godhra.appspot.com"
-                  className="w-full rounded-full border border-[#74897A] dark:border-[#5F7A68] bg-white dark:bg-[#1E2D24] px-4 py-2 text-xs"
-                />
-              </div>
-
-              <div className="mt-5 flex gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowFirebaseModal(false)}
-                  className="flex-1 rounded-full border border-neutral-300 dark:border-neutral-700 py-2 text-xs font-medium"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 rounded-full bg-[#111A14] dark:bg-[#F2F7EE] py-2 text-xs font-semibold text-white dark:text-[#0E1612]"
-                >
-                  Save & Connect
-                </button>
-              </div>
-            </form>
-          </div>
+          )}
         </div>
-      )}
-    </>
+      </div>
+    </header>
   );
 };

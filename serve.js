@@ -26,10 +26,23 @@ const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Headers', '*');
 
   let reqPath = req.url.split('?')[0];
+  if (reqPath.startsWith('/safaai-sathi')) {
+    reqPath = reqPath.slice('/safaai-sathi'.length);
+  }
+  if (!reqPath || reqPath === '/') {
+    reqPath = '/index.html';
+  }
+
   let filePath = path.join(DIST_DIR, reqPath);
 
-  // If path is a directory or root, serve index.html
+  // If path doesn't exist: if it has an extension (missing asset), 404; if not, serve SPA index.html
   if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
+    const hasExt = path.extname(reqPath);
+    if (hasExt && hasExt !== '.html') {
+      res.writeHead(404, { 'Content-Type': 'text/plain' });
+      res.end('Not Found');
+      return;
+    }
     filePath = path.join(DIST_DIR, 'index.html');
   }
 

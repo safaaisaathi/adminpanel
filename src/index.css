@@ -10,12 +10,12 @@
   --color-brand-soft: #E4F1DF;
   --color-accent: #F0873A;
   --color-accent-strong: #B34A0B;
-  --color-background: #F3F6F2;
+  --color-background: #F8FAF7;
   --color-surface: #FFFFFF;
   --color-surface-muted: #E9F1E6;
   --color-text-primary: #14201A;
   --color-text-muted: #566259;
-  --color-border: #DCE5D9;
+  --color-border: #E5EAE3;
   --color-border-strong: #74897A;
 }
 
@@ -36,6 +36,45 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+}
+
+/* Animations matching Section 3 of Wireframe Specification */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideLeft {
+  from { transform: translateX(100%); opacity: 0.8; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(16px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.96); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 200ms ease-out forwards;
+}
+
+.animate-slide-left {
+  animation: slideLeft 320ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 200ms ease-out forwards;
+}
+
+.animate-scale-up {
+  animation: scaleUp 200ms ease-out forwards;
 }
 
 /* Custom leaflet popup overrides */

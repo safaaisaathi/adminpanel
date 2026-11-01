@@ -4,17 +4,20 @@ export type BinnyPose = 'wave' | 'wait' | 'celebrate' | 'sleep';
 
 interface BinnyProps {
   pose?: BinnyPose;
+  state?: BinnyPose;
   size?: number;
   className?: string;
   label?: string;
 }
 
 export const Binny: React.FC<BinnyProps> = ({
-  pose = 'wave',
+  pose,
+  state = 'wave',
   size = 140,
   className = '',
   label,
 }) => {
+  const activePose = pose || state || 'wave';
   return (
     <div
       className={`inline-flex items-center justify-center select-none ${className}`}
@@ -84,7 +87,7 @@ export const Binny: React.FC<BinnyProps> = ({
         />
 
         {/* Friendly Eyes and Expression */}
-        {pose === 'sleep' ? (
+        {activePose === 'sleep' ? (
           // Sleeping eyes: gently curved lines
           <>
             <path d="M40 54 Q44 58 48 54" fill="none" stroke="#111A14" strokeWidth="3" strokeLinecap="round" />
@@ -92,7 +95,7 @@ export const Binny: React.FC<BinnyProps> = ({
             <text x="70" y="38" fontSize="12" fontWeight="bold" fill="#1B7A3F">z</text>
             <text x="78" y="28" fontSize="14" fontWeight="bold" fill="#1B7A3F">Z</text>
           </>
-        ) : pose === 'celebrate' ? (
+        ) : activePose === 'celebrate' ? (
           // Happy celebratory eyes: arcs
           <>
             <path d="M40 54 Q44 48 48 54" fill="none" stroke="#111A14" strokeWidth="3" strokeLinecap="round" />
@@ -119,7 +122,7 @@ export const Binny: React.FC<BinnyProps> = ({
         )}
 
         {/* Arms / Hands based on Pose */}
-        {pose === 'wave' && (
+        {activePose === 'wave' && (
           // Right arm raised waving
           <path
             d="M72 48 Q82 40 85 30 Q88 28 86 35 Q80 48 72 54"
@@ -129,7 +132,7 @@ export const Binny: React.FC<BinnyProps> = ({
             strokeLinejoin="round"
           />
         )}
-        {pose === 'celebrate' && (
+        {activePose === 'celebrate' && (
           // Both arms raised high
           <>
             <path d="M28 48 Q18 36 15 28" fill="none" stroke="#111A14" strokeWidth="3" strokeLinecap="round" />
