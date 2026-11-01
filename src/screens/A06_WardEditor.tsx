@@ -23,7 +23,8 @@ import {
   ZoomIn,
   ZoomOut,
   Navigation,
-  RefreshCw
+  RefreshCw,
+  Move
 } from 'lucide-react';
 
 interface A06WardEditorProps {
@@ -35,7 +36,7 @@ export const A06_WardEditor: React.FC<A06WardEditorProps> = ({ onNavigateTo, edi
   const { createWard, updateWard, availableStaff, routes, wards } = useApp();
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
-  const [activeTool, setActiveTool] = useState<'draw' | 'edit'>('draw');
+  const [activeTool, setActiveTool] = useState<'draw' | 'drag'>('drag');
   const [snapping, setSnapping] = useState(true);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -86,7 +87,11 @@ export const A06_WardEditor: React.FC<A06WardEditorProps> = ({ onNavigateTo, edi
     return Math.abs(area / 2).toFixed(2);
   };
 
-  const calculatedArea = calculateAreaKm2(points);
+  const [liveArea, setLiveArea] = useState<string>(() => calculateAreaKm2(points));
+
+  useEffect(() => {
+    setLiveArea(calculateAreaKm2(points));
+  }, [points]);
 
   // Initialize Real Leaflet Map
   useEffect(() => {
@@ -113,8 +118,9 @@ export const A06_WardEditor: React.FC<A06WardEditorProps> = ({ onNavigateTo, edi
     const drawLayer = L.layerGroup().addTo(map);
     drawingLayerRef.current = drawLayer;
 
-    // Click handler to drop real GPS point
+    // Click handler to drop real GPS point (when in Click/Draw mode or when clicking map)
     map.on('click', (e: L.LeafletMouseEvent) => {
+      // If user clicks on map background, append point
       const newPt: [number, number] = [
         parseFloat(e.latlng.lat.toFixed(5)),
         parseFloat(e.latlng.lng.toFixed(5))
@@ -152,7 +158,7 @@ export const A06_WardEditor: React.FC<A06WardEditorProps> = ({ onNavigateTo, edi
     });
   }, [wards, editWard]);
 
-  // Update drawing layer whenever points change
+  // Update drawing layer with DRAGGABLE vertex pins & live shape
   useEffect(() => {
     if (!drawingLayerRef.current) return;
     const group = drawingLayerRef.current;
@@ -160,57 +166,98 @@ export const A06_WardEditor: React.FC<A06WardEditorProps> = ({ onNavigateTo, edi
 
     if (points.length === 0) return;
 
+    let activePolygon: L.Polygon | null = null;
+    let activeLine: L.Polyline | null = null;
+
     // Draw active polygon or polyline
     if (points.length >= 3) {
-      const polygon = L.polygon(points as L.LatLngExpression[], {
+      activePolygon = L.polygon(points as L.LatLngExpression[], {
         color: '#1B7A3F',
-        weight: 3,
+        weight: 3.5,
         fillColor: '#22C55E',
-        fillOpacity: 0.25
+        fillOpacity: 0.28
       });
-      group.addLayer(polygon);
+      group.addLayer(activePolygon);
     } else if (points.length === 2) {
-      const line = L.polyline(points as L.LatLngExpression[], {
+      activeLine = L.polyline(points as L.LatLngExpression[], {
         color: '#1B7A3F',
         weight: 3,
         dashArray: '4 4'
       });
-      group.addLayer(line);
+      group.addLayer(activeLine);
     }
 
-    // Draw numbered corner markers
+    // Draggable vertex handles at each point
+    const currentDragPts = [...points];
+
     points.forEach((pt, idx) => {
+      const isDragMode = activeTool === 'drag';
+
       const markerIcon = L.divIcon({
         className: 'custom-point-marker',
         html: `<div style="
-          background: #111A14;
+          background: ${isDragMode ? '#111A14' : '#1B7A3F'};
           color: #FFF;
-          width: 24px;
-          height: 24px;
+          width: ${isDragMode ? '26px' : '22px'};
+          height: ${isDragMode ? '26px' : '22px'};
           border-radius: 9999px;
-          border: 2px solid #22C55E;
+          border: 2.5px solid ${isDragMode ? '#22C55E' : '#FFF'};
           display: flex;
           align-items: center;
           justify-content: center;
           font-size: 11px;
           font-weight: 800;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+          box-shadow: 0 3px 8px rgba(0,0,0,0.35);
           transform: translate(-50%, -50%);
-          cursor: pointer;
+          cursor: ${isDragMode ? 'grab' : 'pointer'};
+          transition: transform 0.15s ease;
         ">${idx + 1}</div>`,
         iconSize: [0, 0]
       });
 
-      const marker = L.marker(pt, { icon: markerIcon });
-      marker.bindTooltip(`Point ${idx + 1}: ${pt[0].toFixed(4)}, ${pt[1].toFixed(4)}<br/>Click to remove`, {
+      // Marker is draggable so both ways work!
+      const marker = L.marker(pt, { icon: markerIcon, draggable: true });
+
+      marker.bindTooltip(`<b>Point ${idx + 1}</b><br/>Drag to move · Click to remove`, {
         direction: 'top'
       });
-      marker.on('click', () => {
-        setPoints((prev) => prev.filter((_, i) => i !== idx));
+
+      // Live drag updates polygon without tearing down markers
+      marker.on('drag', (e: any) => {
+        const latlng = e.target.getLatLng();
+        currentDragPts[idx] = [latlng.lat, latlng.lng];
+        if (activePolygon) {
+          activePolygon.setLatLngs(currentDragPts as L.LatLngExpression[]);
+        } else if (activeLine) {
+          activeLine.setLatLngs(currentDragPts as L.LatLngExpression[]);
+        }
+        setLiveArea(calculateAreaKm2(currentDragPts));
       });
+
+      // Sync React state on dragend
+      marker.on('dragend', (e: any) => {
+        const latlng = e.target.getLatLng();
+        setPoints((prev) => {
+          const next = [...prev];
+          next[idx] = [
+            parseFloat(latlng.lat.toFixed(5)),
+            parseFloat(latlng.lng.toFixed(5))
+          ];
+          return next;
+        });
+      });
+
+      // Click on marker removes the point
+      marker.on('click', (e: any) => {
+        if (activeTool === 'draw') {
+          e.originalEvent.stopPropagation();
+          setPoints((prev) => prev.filter((_, i) => i !== idx));
+        }
+      });
+
       group.addLayer(marker);
     });
-  }, [points]);
+  }, [points, activeTool]);
 
   const handleUndoPoint = () => {
     setPoints((prev) => prev.slice(0, prev.length - 1));
@@ -232,7 +279,7 @@ export const A06_WardEditor: React.FC<A06WardEditorProps> = ({ onNavigateTo, edi
     setTimeout(() => {
       const centerLat = points.length > 0 ? points.reduce((acc, p) => acc + p[0], 0) / points.length : 22.7758;
       const centerLng = points.length > 0 ? points.reduce((acc, p) => acc + p[1], 0) / points.length : 73.6149;
-      const areaVal = parseFloat(calculatedArea) || 1.5;
+      const areaVal = parseFloat(liveArea) || 1.5;
 
       if (editWard) {
         updateWard(editWard.id, {
@@ -322,23 +369,51 @@ export const A06_WardEditor: React.FC<A06WardEditorProps> = ({ onNavigateTo, edi
           {/* Left Column: Real Interactive Leaflet Drawing Map (8 cols) */}
           <div className="lg:col-span-8 rounded-[28px] bg-white dark:bg-[#16221B] p-5 shadow-sm border border-[#E5EAE3] dark:border-[#2A3B31] flex flex-col justify-between">
             {/* Top Toolbar */}
-            <div className="flex items-center justify-between pb-3 border-b border-[#E5EAE3] dark:border-[#2A3B31]">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E5EAE3] dark:border-[#2A3B31] flex-wrap gap-2">
               <div className="flex items-center gap-2">
                 <div className="h-8 w-8 rounded-full bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 flex items-center justify-center">
-                  <Pencil size={16} />
+                  <Move size={16} />
                 </div>
                 <div>
                   <h2 className="text-sm font-bold text-[#14201A] dark:text-[#EAF2E6]">
-                    {editWard ? `Edit ${editWard.name}` : 'Draw Ward Boundary'}
+                    {editWard ? `Edit ${editWard.name}` : 'Ward Boundary Editor'}
                   </h2>
                   <p className="text-[11px] text-[#566259] dark:text-[#9DB0A2]">
-                    Click on Godhra map to drop GPS points · Click point to remove
+                    Both options active: Drag pins to reshape OR click map to add/remove points
                   </p>
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex items-center gap-2">
+              {/* Action Buttons & Tool Mode Toggle */}
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* Dual Mode Switch */}
+                <div className="flex rounded-xl bg-neutral-100 dark:bg-neutral-800 p-0.5">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTool('drag')}
+                    className={`px-3 py-1 text-xs font-bold rounded-lg transition-all flex items-center gap-1 ${
+                      activeTool === 'drag'
+                        ? 'bg-white dark:bg-[#16221B] text-[#14201A] dark:text-[#EAF2E6] shadow-xs'
+                        : 'text-[#566259] dark:text-[#9DB0A2]'
+                    }`}
+                  >
+                    <Move size={12} />
+                    <span>Drag Points Mode</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTool('draw')}
+                    className={`px-3 py-1 text-xs font-bold rounded-lg transition-all flex items-center gap-1 ${
+                      activeTool === 'draw'
+                        ? 'bg-white dark:bg-[#16221B] text-[#14201A] dark:text-[#EAF2E6] shadow-xs'
+                        : 'text-[#566259] dark:text-[#9DB0A2]'
+                    }`}
+                  >
+                    <Pencil size={12} />
+                    <span>Click to Add Mode</span>
+                  </button>
+                </div>
+
                 <button
                   type="button"
                   onClick={handleUndoPoint}
@@ -373,7 +448,7 @@ export const A06_WardEditor: React.FC<A06WardEditorProps> = ({ onNavigateTo, edi
 
             {/* Real Map Canvas */}
             <div className="relative h-[480px] w-full my-3 bg-[#E5EBE3] dark:bg-[#111A14] rounded-2xl overflow-hidden border border-[#DCE5D9] dark:border-[#2A3B31]">
-              <div ref={mapContainerRef} className="w-full h-full z-0 cursor-crosshair" />
+              <div ref={mapContainerRef} className={`w-full h-full z-0 ${activeTool === 'draw' ? 'cursor-crosshair' : 'cursor-default'}`} />
 
               {/* Map Floating Controls */}
               <div className="absolute top-3 right-3 z-10 flex flex-col gap-2">
@@ -404,15 +479,15 @@ export const A06_WardEditor: React.FC<A06WardEditorProps> = ({ onNavigateTo, edi
               <div className="absolute bottom-3 left-3 right-3 z-10 flex items-center justify-between rounded-full bg-white/95 dark:bg-[#16221B]/95 backdrop-blur-md px-4 py-2 text-xs font-semibold text-[#14201A] dark:text-[#EAF2E6] shadow border border-neutral-200 dark:border-neutral-700">
                 <div className="flex items-center gap-3">
                   <span>
-                    <b>{points.length}</b> GPS points dropped
+                    <b>{points.length}</b> GPS points
                   </span>
                   <span className="text-neutral-300">|</span>
                   <span className="text-[#1B7A3F] font-bold">
-                    Area: ~{calculatedArea} km²
+                    Live Area: ~{liveArea} km²
                   </span>
                 </div>
                 <span className="text-[11px] text-[#566259]">
-                  {points.length < 3 ? 'Drop at least 3 points to create boundary' : 'Boundary shape valid ✓'}
+                  {activeTool === 'drag' ? '🖐️ Drag numbered circles to adjust boundary' : '✏️ Click on map to add points'}
                 </span>
               </div>
             </div>
@@ -455,10 +530,10 @@ export const A06_WardEditor: React.FC<A06WardEditorProps> = ({ onNavigateTo, edi
               {step === 1 && (
                 <div className="mt-6 space-y-4">
                   <h3 className="text-sm font-bold text-[#14201A] dark:text-[#EAF2E6]">
-                    Boundary Status
+                    Boundary & Area Selection
                   </h3>
                   <p className="text-xs text-[#566259] dark:text-[#9DB0A2]">
-                    Click directly on the streets of Godhra on the real map to mark each corner of the ward.
+                    Drag the numbered pins on the map to resize/reshape the ward area, or click anywhere on the streets to add points.
                   </p>
 
                   <div className="grid grid-cols-2 gap-3 pt-2">
@@ -469,9 +544,9 @@ export const A06_WardEditor: React.FC<A06WardEditorProps> = ({ onNavigateTo, edi
                       </div>
                     </div>
                     <div className="rounded-2xl bg-[#F8FAF7] dark:bg-[#111A14] p-3 text-center border border-neutral-200 dark:border-neutral-800">
-                      <div className="text-[10px] text-[#566259]">Calculated Area</div>
+                      <div className="text-[10px] text-[#566259]">Live Area</div>
                       <div className="text-base font-bold text-[#1B7A3F] dark:text-[#6DB36F]">
-                        {calculatedArea} km²
+                        {liveArea} km²
                       </div>
                     </div>
                   </div>
@@ -483,7 +558,7 @@ export const A06_WardEditor: React.FC<A06WardEditorProps> = ({ onNavigateTo, edi
                     </div>
                     <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
                       <CheckCircle2 size={16} />
-                      <span>Godhra Nagarpalika jurisdiction</span>
+                      <span>Interactive point dragging active</span>
                     </div>
                     <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
                       <CheckCircle2 size={16} />
@@ -491,7 +566,7 @@ export const A06_WardEditor: React.FC<A06WardEditorProps> = ({ onNavigateTo, edi
                     </div>
                     <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
                       <CheckCircle2 size={16} />
-                      <span>GPS precision: Sub-meter OpenStreetMap</span>
+                      <span>Godhra Nagarpalika OpenStreetMap</span>
                     </div>
                   </div>
                 </div>
@@ -611,7 +686,7 @@ export const A06_WardEditor: React.FC<A06WardEditorProps> = ({ onNavigateTo, edi
                     </div>
                     <div className="flex justify-between">
                       <span className="text-[#566259]">Boundary:</span>
-                      <span className="font-bold">{points.length} GPS Points (~{calculatedArea} km²)</span>
+                      <span className="font-bold">{points.length} GPS Points (~{liveArea} km²)</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-[#566259]">Inspector:</span>
@@ -622,7 +697,7 @@ export const A06_WardEditor: React.FC<A06WardEditorProps> = ({ onNavigateTo, edi
                   {/* Verified Badges */}
                   <div className="flex flex-wrap gap-2 text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
                     <span className="rounded-full bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 flex items-center gap-1">
-                      <Check size={12} /> Real GPS Points
+                      <Check size={12} /> Draggable Handles Active
                     </span>
                     <span className="rounded-full bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 flex items-center gap-1">
                       <Check size={12} /> Godhra Jurisdiction

@@ -21,6 +21,9 @@ import {
   ZoomIn,
   ZoomOut,
   Navigation,
+  Move,
+  MousePointer,
+  RotateCcw,
   Sparkles
 } from 'lucide-react';
 import { Binny } from '../components/Binny';
@@ -30,7 +33,7 @@ interface A05WardsProps {
 }
 
 export const A05_Wards: React.FC<A05WardsProps> = ({ onNavigateTo }) => {
-  const { wards, drivers, complaints, routes, deleteWard, createWard, availableStaff } = useApp();
+  const { wards, drivers, complaints, routes, deleteWard, createWard, updateWard, availableStaff } = useApp();
 
   const [selectedWard, setSelectedWard] = useState<Ward | null>(wards[0] || null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -38,6 +41,11 @@ export const A05_Wards: React.FC<A05WardsProps> = ({ onNavigateTo }) => {
   const [addMode, setAddMode] = useState<'quick' | 'draw'>('quick');
   const [blockedDeleteReasons, setBlockedDeleteReasons] = useState<string[] | null>(null);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+
+  // DRAG & EDIT AREA STATES (Option 2: Point dragging & area editing)
+  const [isDragEditing, setIsDragEditing] = useState(false);
+  const [dragPoints, setDragPoints] = useState<[number, number][]>([]);
+  const [dragArea, setDragArea] = useState<string>('0.00');
 
   // Quick Add Form States
   const [quickName, setQuickName] = useState(`Ward ${wards.length + 4}`);
@@ -51,17 +59,83 @@ export const A05_Wards: React.FC<A05WardsProps> = ({ onNavigateTo }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const polygonLayersRef = useRef<L.LayerGroup | null>(null);
+  const dragLayersRef = useRef<L.LayerGroup | null>(null);
 
   // Count wards without inspector
   const wardsWithoutInspector = wards.filter(w => !w.inspectorId).length;
 
+  // Approximate area calculation in km²
+  const calculatePolygonAreaKm2 = (pts: [number, number][]) => {
+    if (pts.length < 3) return '0.00';
+    let area = 0;
+    for (let i = 0; i < pts.length; i++) {
+      const j = (i + 1) % pts.length;
+      const x1 = pts[i][1] * 102.5;
+      const y1 = pts[i][0] * 111.0;
+      const x2 = pts[j][1] * 102.5;
+      const y2 = pts[j][0] * 111.0;
+      area += x1 * y2 - x2 * y1;
+    }
+    return Math.abs(area / 2).toFixed(2);
+  };
+
   const handleSelectWard = (w: Ward) => {
     setSelectedWard(w);
-    setIsDrawerOpen(true);
+    if (!isDragEditing) {
+      setIsDrawerOpen(true);
+    }
 
     if (mapInstanceRef.current && w.center) {
       mapInstanceRef.current.flyTo([w.center.lat, w.center.lng], 15, { duration: 0.8 });
     }
+  };
+
+  const startDragEditing = (w: Ward) => {
+    setSelectedWard(w);
+    setIsDrawerOpen(false);
+    const initialPts: [number, number][] = w.polygon && w.polygon.length > 0
+      ? w.polygon.map((p) => [p[0], p[1]] as [number, number])
+      : [
+          [22.775, 73.604],
+          [22.776, 73.612],
+          [22.771, 73.614],
+          [22.768, 73.607]
+        ];
+    setDragPoints(initialPts);
+    setDragArea(w.areaKm2 ? w.areaKm2.toFixed(2) : calculatePolygonAreaKm2(initialPts));
+    setIsDragEditing(true);
+
+    if (mapInstanceRef.current && w.center) {
+      mapInstanceRef.current.flyTo([w.center.lat, w.center.lng], 15, { duration: 0.6 });
+    }
+  };
+
+  const handleSaveDragChanges = () => {
+    if (!selectedWard) return;
+    const centerLat = dragPoints.length > 0 ? dragPoints.reduce((acc, p) => acc + p[0], 0) / dragPoints.length : 22.7758;
+    const centerLng = dragPoints.length > 0 ? dragPoints.reduce((acc, p) => acc + p[1], 0) / dragPoints.length : 73.6149;
+    const newArea = parseFloat(dragArea) || selectedWard.areaKm2;
+
+    updateWard(selectedWard.id, {
+      polygon: dragPoints,
+      areaKm2: newArea,
+      pointsCount: dragPoints.length,
+      center: { lat: centerLat, lng: centerLng }
+    });
+
+    setIsDragEditing(false);
+    showToast(`✓ ${selectedWard.name} boundary & area updated to ${newArea} km²!`);
+  };
+
+  const handleCancelDrag = () => {
+    setIsDragEditing(false);
+  };
+
+  const handleResetDragPoints = () => {
+    if (!selectedWard || !selectedWard.polygon) return;
+    const pts: [number, number][] = selectedWard.polygon.map((p) => [p[0], p[1]] as [number, number]);
+    setDragPoints(pts);
+    setDragArea(selectedWard.areaKm2.toFixed(2));
   };
 
   const handleDeleteClick = (ward: Ward) => {
@@ -138,6 +212,10 @@ export const A05_Wards: React.FC<A05WardsProps> = ({ onNavigateTo }) => {
 
     const polyGroup = L.layerGroup().addTo(map);
     polygonLayersRef.current = polyGroup;
+
+    const dragGroup = L.layerGroup().addTo(map);
+    dragLayersRef.current = dragGroup;
+
     mapInstanceRef.current = map;
 
     return () => {
@@ -146,18 +224,21 @@ export const A05_Wards: React.FC<A05WardsProps> = ({ onNavigateTo }) => {
     };
   }, []);
 
-  // Render ward polygons on the map
+  // Render ward polygons on the map (Standard View / Select Mode)
   useEffect(() => {
     if (!mapInstanceRef.current || !polygonLayersRef.current) return;
     const group = polygonLayersRef.current;
     group.clearLayers();
 
+    // When in drag editing mode, we let the drag layer handle the selected ward
     const colors = ['#1B7A3F', '#2F6FDE', '#E87A17', '#9333EA', '#059669', '#D97706'];
 
     wards.forEach((ward, idx) => {
       if (!ward.polygon || ward.polygon.length === 0) return;
 
       const isSelected = selectedWard?.id === ward.id;
+      if (isDragEditing && isSelected) return; // handled by drag editing effect
+
       const color = colors[idx % colors.length];
 
       // Draw real polygon
@@ -208,7 +289,79 @@ export const A05_Wards: React.FC<A05WardsProps> = ({ onNavigateTo }) => {
         group.addLayer(labelMarker);
       }
     });
-  }, [wards, selectedWard]);
+  }, [wards, selectedWard, isDragEditing]);
+
+  // DRAG & RESIZE AREA INTERACTIVE EFFECT
+  useEffect(() => {
+    if (!dragLayersRef.current) return;
+    const group = dragLayersRef.current;
+    group.clearLayers();
+
+    if (!isDragEditing || !selectedWard || dragPoints.length === 0) return;
+
+    // Active editable polygon
+    const activePoly = L.polygon(dragPoints as L.LatLngExpression[], {
+      color: '#1B7A3F',
+      weight: 3.5,
+      fillColor: '#22C55E',
+      fillOpacity: 0.3
+    });
+    group.addLayer(activePoly);
+
+    // Draggable vertex handles at each point
+    const currentPts = [...dragPoints];
+
+    dragPoints.forEach((pt, idx) => {
+      const handleIcon = L.divIcon({
+        className: 'custom-drag-handle',
+        html: `<div style="
+          width: 26px;
+          height: 26px;
+          background: #111A14;
+          color: #FFF;
+          border: 2.5px solid #22C55E;
+          border-radius: 9999px;
+          box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 11px;
+          font-weight: 800;
+          cursor: grab;
+          transform: translate(-50%, -50%);
+        ">${idx + 1}</div>`,
+        iconSize: [0, 0]
+      });
+
+      const marker = L.marker(pt, { icon: handleIcon, draggable: true });
+      marker.bindTooltip(`<b>Handle ${idx + 1}</b><br/>Drag to reshape area`, {
+        direction: 'top'
+      });
+
+      // While dragging: live update polygon coordinates & live area without recreating marker
+      marker.on('drag', (e: any) => {
+        const latlng = e.target.getLatLng();
+        currentPts[idx] = [latlng.lat, latlng.lng];
+        activePoly.setLatLngs(currentPts as L.LatLngExpression[]);
+        setDragArea(calculatePolygonAreaKm2(currentPts));
+      });
+
+      // On dragend: sync React state
+      marker.on('dragend', (e: any) => {
+        const latlng = e.target.getLatLng();
+        setDragPoints((prev) => {
+          const next = [...prev];
+          next[idx] = [
+            parseFloat(latlng.lat.toFixed(5)),
+            parseFloat(latlng.lng.toFixed(5))
+          ];
+          return next;
+        });
+      });
+
+      group.addLayer(marker);
+    });
+  }, [isDragEditing, selectedWard]);
 
   return (
     <div className="space-y-6 pb-12 relative">
@@ -230,21 +383,35 @@ export const A05_Wards: React.FC<A05WardsProps> = ({ onNavigateTo }) => {
             </span>
           </h2>
           <p className="text-xs text-[#566259] dark:text-[#9DB0A2] mt-0.5">
-            Real GPS ward boundaries, inspector assignments, and real-time jurisdiction mapping.
+            Real GPS ward boundaries · Click to view jurisdiction OR drag points to edit boundary area.
           </p>
         </div>
 
-        <button
-          onClick={() => {
-            setQuickName(`Ward ${wards.length + 4}`);
-            setQuickCode(`GDH-W-00${wards.length + 4}`);
-            setShowAddModal(true);
-          }}
-          className="rounded-full bg-[#111A14] hover:bg-black text-white dark:bg-[#F2F7EE] dark:hover:bg-white dark:text-[#0E1612] px-5 py-2.5 text-xs font-bold shadow flex items-center gap-2 transition-transform active:scale-95 shrink-0"
-        >
-          <Plus size={16} className="text-emerald-400" />
-          <span>Add New Ward</span>
-        </button>
+        {/* Dual Mode & Add Ward Controls */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {selectedWard && !isDragEditing && (
+            <button
+              onClick={() => startDragEditing(selectedWard)}
+              className="rounded-full bg-emerald-50 hover:bg-emerald-100 text-[#1B7A3F] dark:bg-emerald-950/40 dark:text-emerald-300 px-4 py-2 text-xs font-bold border border-emerald-200 dark:border-emerald-800/40 flex items-center gap-1.5 transition-all shadow-xs"
+              title="Drag corner handles to adjust selected ward boundary and area"
+            >
+              <Move size={14} />
+              <span>Drag & Edit Area ({selectedWard.name})</span>
+            </button>
+          )}
+
+          <button
+            onClick={() => {
+              setQuickName(`Ward ${wards.length + 4}`);
+              setQuickCode(`GDH-W-00${wards.length + 4}`);
+              setShowAddModal(true);
+            }}
+            className="rounded-full bg-[#111A14] hover:bg-black text-white dark:bg-[#F2F7EE] dark:hover:bg-white dark:text-[#0E1612] px-5 py-2 text-xs font-bold shadow flex items-center gap-2 transition-transform active:scale-95 shrink-0"
+          >
+            <Plus size={16} className="text-emerald-400" />
+            <span>Add New Ward</span>
+          </button>
+        </div>
       </div>
 
       {/* If No Wards */}
@@ -279,13 +446,15 @@ export const A05_Wards: React.FC<A05WardsProps> = ({ onNavigateTo }) => {
                     {wards.length} wards configured
                   </span>
                 </div>
-                <button
-                  onClick={() => setShowAddModal(true)}
-                  className="rounded-full bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 px-3 py-1 text-[11px] font-bold hover:bg-emerald-100 flex items-center gap-1"
-                >
-                  <Plus size={13} />
-                  <span>New Ward</span>
-                </button>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => setShowAddModal(true)}
+                    className="rounded-full bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 px-3 py-1 text-[11px] font-bold hover:bg-emerald-100 flex items-center gap-1"
+                  >
+                    <Plus size={13} />
+                    <span>New Ward</span>
+                  </button>
+                </div>
               </div>
 
               {/* Ward list items */}
@@ -298,7 +467,7 @@ export const A05_Wards: React.FC<A05WardsProps> = ({ onNavigateTo }) => {
                     <div
                       key={ward.id}
                       onClick={() => handleSelectWard(ward)}
-                      className={`cursor-pointer rounded-2xl p-4 transition-all ${
+                      className={`cursor-pointer rounded-2xl p-4 transition-all relative ${
                         isSelected
                           ? 'bg-[#EBF3EB] dark:bg-[#1E2D24] border border-[#1B7A3F] shadow-sm'
                           : 'bg-[#F8FAF7] dark:bg-[#111A14] hover:bg-[#EAEFE9] dark:hover:bg-[#16221B] border border-transparent'
@@ -310,6 +479,11 @@ export const A05_Wards: React.FC<A05WardsProps> = ({ onNavigateTo }) => {
                           <span className="text-[10px] text-[#566259] font-normal px-2 py-0.5 rounded-md bg-neutral-200/50 dark:bg-neutral-800">
                             {ward.code}
                           </span>
+                          {isDragEditing && isSelected && (
+                            <span className="text-[10px] bg-emerald-500 text-white font-bold px-2 py-0.5 rounded-full animate-pulse">
+                              Editing Area
+                            </span>
+                          )}
                         </div>
                         <span className="text-[11px] font-bold text-[#1B7A3F] dark:text-[#6DB36F]">
                           {ward.areaKm2} km²
@@ -319,9 +493,22 @@ export const A05_Wards: React.FC<A05WardsProps> = ({ onNavigateTo }) => {
                         <span>
                           Inspector: <span className={ward.inspectorId ? 'font-medium text-[#14201A] dark:text-[#EAF2E6]' : 'text-amber-600 font-semibold'}>{inspector}</span>
                         </span>
-                        <span className="capitalize text-[10px] text-neutral-500 font-semibold">
-                          {ward.type}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              startDragEditing(ward);
+                            }}
+                            className="text-[10px] text-[#1B7A3F] hover:underline font-bold flex items-center gap-0.5"
+                          >
+                            <Move size={11} />
+                            <span>Drag Area</span>
+                          </button>
+                          <span className="capitalize text-[10px] text-neutral-500 font-semibold">
+                            {ward.type}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   );
@@ -340,26 +527,48 @@ export const A05_Wards: React.FC<A05WardsProps> = ({ onNavigateTo }) => {
             </div>
           </div>
 
-          {/* Right Column: Real Leaflet Map (7 cols) */}
+          {/* Right Column: Real Leaflet Map with Drag Area & Selection (7 cols) */}
           <div className="lg:col-span-7 rounded-[28px] bg-white dark:bg-[#16221B] p-5 shadow-sm border border-[#E5EAE3] dark:border-[#2A3B31] flex flex-col justify-between">
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
               <div className="flex items-center gap-2">
                 <MapPin size={16} className="text-[#1B7A3F]" />
                 <span className="text-xs font-bold text-[#14201A] dark:text-[#EAF2E6]">
-                  Real Interactive Map · Godhra (22.7758° N, 73.6149° E)
+                  {isDragEditing && selectedWard
+                    ? `Dragging & Editing: ${selectedWard.name}`
+                    : 'Godhra Interactive Map (22.7758° N, 73.6149° E)'}
                 </span>
               </div>
-              <button
-                onClick={() => {
-                  setQuickName(`Ward ${wards.length + 4}`);
-                  setQuickCode(`GDH-W-00${wards.length + 4}`);
-                  setShowAddModal(true);
-                }}
-                className="rounded-full bg-[#111A14] hover:bg-black text-white dark:bg-[#F2F7EE] dark:hover:bg-white dark:text-[#0E1612] px-4 py-1.5 text-xs font-bold shadow-sm flex items-center gap-1.5"
-              >
-                <Plus size={14} />
-                <span>Add Ward</span>
-              </button>
+
+              {/* Mode switch pills */}
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setIsDragEditing(false)}
+                  className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all ${
+                    !isDragEditing
+                      ? 'bg-[#111A14] text-white dark:bg-[#F2F7EE] dark:text-[#0E1612]'
+                      : 'bg-neutral-100 dark:bg-neutral-800 text-[#566259]'
+                  }`}
+                >
+                  Click to Select
+                </button>
+                {selectedWard && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!isDragEditing) startDragEditing(selectedWard);
+                    }}
+                    className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all flex items-center gap-1 ${
+                      isDragEditing
+                        ? 'bg-emerald-600 text-white shadow-sm'
+                        : 'bg-neutral-100 dark:bg-neutral-800 text-[#566259] hover:text-[#14201A]'
+                    }`}
+                  >
+                    <Move size={12} />
+                    <span>Drag Points to Edit</span>
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Real Map Canvas */}
@@ -391,10 +600,53 @@ export const A05_Wards: React.FC<A05WardsProps> = ({ onNavigateTo }) => {
                 </button>
               </div>
 
-              {/* Bottom Instructions Badge */}
-              <div className="absolute bottom-3 left-3 z-10 rounded-full bg-white/95 dark:bg-[#16221B]/95 backdrop-blur-md px-3.5 py-1.5 text-[11px] font-bold text-[#14201A] dark:text-[#EAF2E6] shadow border border-neutral-200 dark:border-neutral-700">
-                Click any ward boundary to view jurisdiction details
-              </div>
+              {/* DRAG EDITING FLOATING TOOLBAR (Option 2) */}
+              {isDragEditing && selectedWard ? (
+                <div className="absolute top-3 left-3 right-16 z-20 rounded-2xl bg-white/95 dark:bg-[#16221B]/95 backdrop-blur-md p-3 shadow-xl border border-emerald-500/40 flex items-center justify-between gap-3 animate-slide-down">
+                  <div className="flex items-center gap-2.5">
+                    <div className="h-8 w-8 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 flex items-center justify-center font-bold">
+                      <Move size={16} />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-[#14201A] dark:text-[#EAF2E6]">
+                        Dragging points for {selectedWard.name}
+                      </div>
+                      <div className="text-[11px] text-[#566259] dark:text-[#9DB0A2]">
+                        Drag numbered pins to reshape · Live Area: <span className="font-bold text-[#1B7A3F] dark:text-[#6DB36F]">{dragArea} km²</span> ({dragPoints.length} points)
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleResetDragPoints}
+                      className="px-3 py-1.5 rounded-xl border border-neutral-200 dark:border-neutral-700 text-xs font-bold text-neutral-600 hover:bg-neutral-100 flex items-center gap-1"
+                      title="Reset to original boundary"
+                    >
+                      <RotateCcw size={12} />
+                      <span>Reset</span>
+                    </button>
+                    <button
+                      onClick={handleCancelDrag}
+                      className="px-3 py-1.5 rounded-xl text-xs font-bold text-neutral-500 hover:bg-neutral-100"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleSaveDragChanges}
+                      className="px-4 py-1.5 rounded-xl bg-[#111A14] hover:bg-black text-white dark:bg-[#F2F7EE] dark:hover:bg-white dark:text-[#0E1612] text-xs font-bold shadow flex items-center gap-1.5 transition-transform active:scale-95"
+                    >
+                      <Check size={13} />
+                      <span>Save Area</span>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                /* Bottom Instructions Badge (Option 1) */
+                <div className="absolute bottom-3 left-3 z-10 rounded-full bg-white/95 dark:bg-[#16221B]/95 backdrop-blur-md px-3.5 py-1.5 text-[11px] font-bold text-[#14201A] dark:text-[#EAF2E6] shadow border border-neutral-200 dark:border-neutral-700 flex items-center gap-2">
+                  <span>Click any ward to view details or click "Drag Area" to reshape boundary</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -581,7 +833,7 @@ export const A05_Wards: React.FC<A05WardsProps> = ({ onNavigateTo }) => {
       )}
 
       {/* Ward Details Drawer */}
-      {isDrawerOpen && selectedWard && (
+      {isDrawerOpen && selectedWard && !isDragEditing && (
         <div className="fixed inset-0 z-50 flex justify-end">
           <div
             onClick={() => setIsDrawerOpen(false)}
@@ -632,8 +884,22 @@ export const A05_Wards: React.FC<A05WardsProps> = ({ onNavigateTo }) => {
                 </div>
               </div>
 
+              {/* Quick Area Drag Button */}
+              <button
+                onClick={() => startDragEditing(selectedWard)}
+                className="w-full mt-4 p-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 text-[#1B7A3F] dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40 flex items-center justify-between text-xs font-bold transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <Move size={16} />
+                  <span>Drag points on map to edit {selectedWard.name} area</span>
+                </div>
+                <span className="text-[10px] bg-emerald-200/60 dark:bg-emerald-900/60 px-2 py-0.5 rounded-full font-bold">
+                  Interactive
+                </span>
+              </button>
+
               {/* Inspector Card */}
-              <div className="mt-6 p-4 rounded-2xl bg-[#F8FAF7] dark:bg-[#111A14] border border-[#E5EAE3] dark:border-[#2A3B31]">
+              <div className="mt-4 p-4 rounded-2xl bg-[#F8FAF7] dark:bg-[#111A14] border border-[#E5EAE3] dark:border-[#2A3B31]">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 flex items-center justify-center font-bold text-sm">
@@ -699,7 +965,7 @@ export const A05_Wards: React.FC<A05WardsProps> = ({ onNavigateTo }) => {
                 className="rounded-full bg-[#111A14] hover:bg-black text-white dark:bg-[#F2F7EE] dark:hover:bg-white dark:text-[#0E1612] px-6 py-2.5 text-xs font-bold shadow flex items-center gap-1.5"
               >
                 <Edit2 size={15} />
-                <span>Edit boundary</span>
+                <span>Boundary Wizard</span>
               </button>
             </div>
           </div>
