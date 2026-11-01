@@ -2,10 +2,10 @@
 ## DDO Panchmahal Godhra • Citizen-Centric Garbage Collection & Sanitation Monitoring System
 
 ### 🌐 Live Portal Links
-- 🌍 **[Official Web Portal (GitHub Pages)](https://safaaisaathi.github.io/admin-panel/)**: Primary 24/7 live web application hosted on GitHub Pages. Accessible on all devices (mobile, tablet, desktop).
-- 🚀 **[Live Public Mirror (Mobile & Desktop)](https://reviewer-laundry-introductory-hull.trycloudflare.com)**: Direct high-speed tunnel mirror for real-time demonstration.
-- 📦 **[Official GitHub Code Repository](https://github.com/safaaisaathi/admin-panel)**: Complete source code, branch history, and documentation.
-- 💻 **Localhost (Local Development)**: http://localhost:3000 (Used for local offline development on your machine).
+* 🏢 **Organization GitHub Pages (Official)**: https://safaaisaathi.github.io/admin-panel/
+* 🚀 **Live Public Link (Mobile & Desktop)**: https://reviewer-laundry-introductory-hull.trycloudflare.com
+* 📦 **Official Organization Repository**: https://github.com/safaaisaathi/admin-panel
+* 🖥️ **Localhost (Development / Local)**: http://localhost:3000
 
 Welcome to the **Safai Sathi Admin Portal**. This web platform is built strictly according to **PRD 3 of 3 (Admin Website Panel)** and **DESIGN.md (Safai Sathi Design System v1.0)**.
 
