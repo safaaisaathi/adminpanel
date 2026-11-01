@@ -2,7 +2,9 @@
 ## DDO Panchmahal Godhra • Citizen-Centric Garbage Collection & Sanitation Monitoring System
 
 ### 🌐 Live Portal Links
+- **🏢 Organization GitHub Pages (Official)**: [https://safaaisaathi.github.io/admin-panel/](https://safaaisaathi.github.io/admin-panel/)
 - **🚀 Live Public Link (Mobile & Desktop)**: [https://personality-thinks-entirely-wales.trycloudflare.com](https://personality-thinks-entirely-wales.trycloudflare.com)
+- **📦 Official Organization Repository**: [https://github.com/safaaisaathi/admin-panel](https://github.com/safaaisaathi/admin-panel)
 - **🌿 GitHub Pages**: [https://arpitvpandey.github.io/safaai-sathi-62637af2/](https://arpitvpandey.github.io/safaai-sathi-62637af2/)
 - **🖥️ Localhost (Development / Local)**: [http://localhost:3000](http://localhost:3000)
 
