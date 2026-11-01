@@ -2,7 +2,7 @@
 ## DDO Panchmahal Godhra • Citizen-Centric Garbage Collection & Sanitation Monitoring System
 
 ### 🌐 Live Portal Links
-- **🚀 Live Public Link (Mobile & Desktop)**: [https://restored-journey-father-app.trycloudflare.com](https://restored-journey-father-app.trycloudflare.com)
+- **🚀 Live Public Link (Mobile & Desktop)**: [https://adventure-delays-sum-grants.trycloudflare.com](https://adventure-delays-sum-grants.trycloudflare.com)
 - **🌿 GitHub Pages**: [https://arpitvpandey.github.io/safaai-sathi/](https://arpitvpandey.github.io/safaai-sathi/)
 - **🖥️ Localhost (Development / Local)**: [http://localhost:3000](http://localhost:3000)
 
