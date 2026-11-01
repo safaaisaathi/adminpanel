@@ -26,6 +26,9 @@ const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Headers', '*');
 
   let reqPath = req.url.split('?')[0];
+  if (reqPath.startsWith('/admin-panel')) {
+    reqPath = reqPath.slice('/admin-panel'.length);
+  }
   if (reqPath.startsWith('/safaai-sathi')) {
     reqPath = reqPath.slice('/safaai-sathi'.length);
   }

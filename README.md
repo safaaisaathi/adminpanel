@@ -2,17 +2,15 @@
 ## DDO Panchmahal Godhra • Citizen-Centric Garbage Collection & Sanitation Monitoring System
 
 ### 🌐 Live Portal Links
-- 🌍 **[Official Web Portal (GitHub Pages)](https://safaaisaathi.github.io/admin-panel/)** — 24/7 કાયમી ઓનલાઈન પોર્ટલ (કોઈપણ ડિવાઇસ પર ખોલી શકાય).
-- 🚀 **[Live Public Mirror (Cloudflare)](https://personality-thinks-entirely-wales.trycloudflare.com)** — રિયલ-ટાઇમ લાઇવ ડેમો લિંક (મોબાઇલ અને ડેસ્કટોપ).
-- 📦 **[Official GitHub Code Repository](https://github.com/safaaisaathi/admin-panel)** — પ્રોજેક્ટનો સોર્સ કોડ અને ફાઇલો (Code & Commits).
-
-- **🖥️ Localhost (Development / Local)**: [http://localhost:3000](http://localhost:3000)
+- 🌍 **[Official Web Portal (GitHub Pages)](https://safaaisaathi.github.io/admin-panel/)**: Primary 24/7 live web application hosted on GitHub Pages. Accessible on all devices (mobile, tablet, desktop).
+- 📦 **[Official GitHub Code Repository](https://github.com/safaaisaathi/admin-panel)**: Complete source code, branch history, and documentation.
+- 💻 **Localhost (Local Development)**: http://localhost:3000 (Used for local offline development on your machine).
 
 Welcome to the **Safai Sathi Admin Portal**. This web platform is built strictly according to **PRD 3 of 3 (Admin Website Panel)** and **DESIGN.md (Safai Sathi Design System v1.0)**.
 
 ---
 
-## 🌟 1. Project In-Depth Knowledge (પ્રોજેક્ટ વિગતવાર માહિતી)
+## 🌟 1. Project In-Depth Knowledge
 
 ### 🎯 Purpose & Hierarchy
 The portal serves 4 tiers of administrative sanitation authorities in Panchmahal District (Godhra, Gujarat):
