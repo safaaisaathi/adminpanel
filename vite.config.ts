@@ -9,7 +9,7 @@ const isGitHubActions = process.env.GITHUB_ACTIONS === 'true';
 const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true';
 
 export default defineConfig({
-  base: isGitHubActions ? '/admin-panel/' : (isVercel ? '/' : './'),
+  base: isGitHubActions ? '/adminpanel/' : (isVercel ? '/' : './'),
   plugins: [react()],
   server: {
     port: 3000,
