@@ -1,10 +1,10 @@
 # Safai Sathi - Admin Portal (PS000051)
 ## DDO Panchmahal Godhra • Citizen-Centric Garbage Collection & Sanitation Monitoring System
 
-### 🌐 Live Portal Links
-* 🏢 **Organization GitHub Pages (Official)**: https://safaaisaathi.github.io/adminpanel/
-* 📦 **Official Organization Repository**: https://github.com/safaaisaathi/adminpanel
-* 🖥️ **Localhost (Development / Local)**: http://localhost:3000
+### 🌐 Live Deployment Links
+* 🚀 **Vercel Live Deployment**: https://adminpanel-safaaisaathi.vercel.app
+* 🏢 **GitHub Pages (Live Mirror)**: https://safaaisaathi.github.io/adminpanel/
+* 📦 **GitHub Repository**: https://github.com/safaaisaathi/adminpanel
 
 Welcome to the **Safai Sathi Admin Portal**. This web platform is built strictly according to **PRD 3 of 3 (Admin Website Panel)** and **DESIGN.md (Safai Sathi Design System v1.0)**.
 
