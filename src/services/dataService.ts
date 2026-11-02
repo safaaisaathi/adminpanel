@@ -118,9 +118,9 @@ class DataService {
   }
 
   // Driver Operations
-  public enrollDriver(driverData: Omit<Driver, 'id' | 'driverId' | 'status' | 'shiftProgressPct' | 'joinedDate'>) {
-    const nextNum = 48 + this.drivers.length - 6;
-    const driverId = `GDH-D-00${nextNum}`;
+  public enrollDriver(driverData: Omit<Driver, 'id' | 'driverId' | 'status' | 'shiftProgressPct' | 'joinedDate'> & { driverId?: string }) {
+    const nextNum = Math.max(1, 48 + this.drivers.length - 6);
+    const driverId = driverData.driverId || `GJ-${String(nextNum).padStart(4, '0')}`;
     const oneTimePin = `${Math.floor(1000 + Math.random() * 9000)}`;
 
     const newDriver: Driver = {

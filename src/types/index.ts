@@ -57,7 +57,7 @@ export interface Van {
 
 export interface Driver {
   id: string;
-  driverId: string; // GDH-D-0042
+  driverId: string; // GJ-0042 (format: 'XX-0000')
   name: string;
   phone: string;
   dob: string;

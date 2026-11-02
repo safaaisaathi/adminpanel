@@ -181,14 +181,14 @@ export const SEED_WARDS: Ward[] = [
 export const SEED_DRIVERS: Driver[] = [
   {
     id: 'drv_ramesh',
-    driverId: 'GDH-D-0042',
+    driverId: 'GJ-0042',
     name: 'Ramesh Bhai',
-    phone: '+91 98xxxx42',
+    phone: '+91 98251 04200',
     dob: '14 Mar 1989',
     address: 'Panam Road, Godhra',
     emergencyContact: {
       name: 'Kanta Ben',
-      phone: '+91 98xxxx88'
+      phone: '+91 98251 08800'
     },
     licenceNumber: 'GJ17 2019 0045123',
     licenceClass: 'LMV (Transport)',
@@ -213,14 +213,14 @@ export const SEED_DRIVERS: Driver[] = [
   },
   {
     id: 'drv_suresh',
-    driverId: 'GDH-D-0043',
+    driverId: 'GJ-0043',
     name: 'Suresh Vaja',
-    phone: '+91 98xxxx43',
+    phone: '+91 98251 04300',
     dob: '22 Aug 1991',
     address: 'Vavdi Road, Godhra',
     emergencyContact: {
       name: 'Bhavna Vaja',
-      phone: '+91 98xxxx77'
+      phone: '+91 98251 07700'
     },
     licenceNumber: 'GJ17 2020 0055214',
     licenceClass: 'LMV (Transport)',
@@ -243,14 +243,14 @@ export const SEED_DRIVERS: Driver[] = [
   },
   {
     id: 'drv_dilip',
-    driverId: 'GDH-D-0044',
+    driverId: 'GJ-0044',
     name: 'Dilip Rana',
-    phone: '+91 98xxxx44',
+    phone: '+91 98251 04400',
     dob: '05 Nov 1988',
     address: 'Near Civil Station, Godhra',
     emergencyContact: {
       name: 'Geeta Rana',
-      phone: '+91 98xxxx66'
+      phone: '+91 98251 06600'
     },
     licenceNumber: 'GJ17 2019 0045123',
     licenceClass: 'LMV (Transport)',
@@ -271,14 +271,14 @@ export const SEED_DRIVERS: Driver[] = [
   },
   {
     id: 'drv_anil',
-    driverId: 'GDH-D-0045',
+    driverId: 'GJ-0045',
     name: 'Anil Chauhan',
-    phone: '+91 98xxxx45',
+    phone: '+91 98251 04500',
     dob: '18 Jul 1993',
     address: 'Station Colony, Godhra',
     emergencyContact: {
       name: 'Sunil Chauhan',
-      phone: '+91 98xxxx55'
+      phone: '+91 98251 05500'
     },
     licenceNumber: 'GJ17 2021 0078129',
     licenceClass: 'LMV (Transport)',
@@ -299,14 +299,14 @@ export const SEED_DRIVERS: Driver[] = [
   },
   {
     id: 'drv_kiran',
-    driverId: 'GDH-D-0046',
+    driverId: 'GJ-0046',
     name: 'Kiran Solanki',
-    phone: '+91 98xxxx46',
+    phone: '+91 98251 04600',
     dob: '30 Sep 1995',
     address: 'Bhamaiya, Godhra',
     emergencyContact: {
       name: 'Pravin Solanki',
-      phone: '+91 98xxxx44'
+      phone: '+91 98251 04400'
     },
     licenceNumber: 'GJ17 2022 0098432',
     licenceClass: 'LMV (Transport)',
@@ -322,14 +322,14 @@ export const SEED_DRIVERS: Driver[] = [
   },
   {
     id: 'drv_bharat',
-    driverId: 'GDH-D-0047',
+    driverId: 'GJ-0047',
     name: 'Bharat Patel',
-    phone: '+91 98xxxx47',
+    phone: '+91 98251 04700',
     dob: '12 Jan 1987',
     address: 'Bamroli Road, Godhra',
     emergencyContact: {
       name: 'Mina Patel',
-      phone: '+91 98xxxx33'
+      phone: '+91 98251 03300'
     },
     licenceNumber: 'GJ17 2018 0032910',
     licenceClass: 'LMV (Transport)',
@@ -347,12 +347,12 @@ export const SEED_DRIVERS: Driver[] = [
   },
   {
     id: 'drv_hitesh',
-    driverId: 'GDH-D-0049',
+    driverId: 'GJ-0049',
     name: 'Hitesh Rana',
-    phone: '+91 98xxxx49',
+    phone: '+91 98251 04900',
     dob: '02 Feb 1994',
     address: 'Lalbagh, Godhra',
-    emergencyContact: { name: 'Raju Rana', phone: '+91 98xxxx22' },
+    emergencyContact: { name: 'Raju Rana', phone: '+91 98251 02200' },
     licenceNumber: 'GJ17 2023 0089123',
     licenceClass: 'LMV (Transport)',
     licenceIssued: '15 Jan 2023',
@@ -367,12 +367,12 @@ export const SEED_DRIVERS: Driver[] = [
   },
   {
     id: 'drv_naresh',
-    driverId: 'GDH-D-0050',
+    driverId: 'GJ-0050',
     name: 'Naresh Vaja',
-    phone: '+91 98xxxx50',
+    phone: '+91 98251 05000',
     dob: '19 Dec 1992',
     address: 'Chikli, Godhra',
-    emergencyContact: { name: 'Kailash Vaja', phone: '+91 98xxxx11' },
+    emergencyContact: { name: 'Kailash Vaja', phone: '+91 98251 01100' },
     licenceNumber: 'GJ17 2022 0076543',
     licenceClass: 'LMV (Transport)',
     licenceIssued: '10 Nov 2022',
@@ -944,7 +944,7 @@ export const SEED_ATTENDANCE: AttendanceRecord[] = [
     id: 'att_1',
     driverId: 'drv_ramesh',
     driverName: 'Ramesh Bhai',
-    driverCode: 'GDH-D-0042',
+    driverCode: 'GJ-0042',
     vanPlate: 'GJ-17-AB-1234',
     scheduled: '07:30',
     started: '07:28',
@@ -958,7 +958,7 @@ export const SEED_ATTENDANCE: AttendanceRecord[] = [
     id: 'att_2',
     driverId: 'drv_suresh',
     driverName: 'Suresh Vaja',
-    driverCode: 'GDH-D-0043',
+    driverCode: 'GJ-0043',
     vanPlate: 'GJ-17-AB-1301',
     scheduled: '07:30',
     started: 'Not started',
@@ -972,7 +972,7 @@ export const SEED_ATTENDANCE: AttendanceRecord[] = [
     id: 'att_3',
     driverId: 'drv_dilip',
     driverName: 'Dilip Rana',
-    driverCode: 'GDH-D-0044',
+    driverCode: 'GJ-0044',
     vanPlate: 'GJ-17-CD-2210',
     scheduled: '07:30',
     started: '07:33',
@@ -986,7 +986,7 @@ export const SEED_ATTENDANCE: AttendanceRecord[] = [
     id: 'att_4',
     driverId: 'drv_anil',
     driverName: 'Anil Chauhan',
-    driverCode: 'GDH-D-0045',
+    driverCode: 'GJ-0045',
     vanPlate: 'GJ-17-EF-3001',
     scheduled: '07:30',
     started: '07:25',
@@ -1000,7 +1000,7 @@ export const SEED_ATTENDANCE: AttendanceRecord[] = [
     id: 'att_5',
     driverId: 'drv_kiran',
     driverName: 'Kiran Solanki',
-    driverCode: 'GDH-D-0046',
+    driverCode: 'GJ-0046',
     vanPlate: 'Not allotted',
     scheduled: '07:30',
     started: '-',
@@ -1013,7 +1013,7 @@ export const SEED_ATTENDANCE: AttendanceRecord[] = [
     id: 'att_6',
     driverId: 'drv_bharat',
     driverName: 'Bharat Patel',
-    driverCode: 'GDH-D-0047',
+    driverCode: 'GJ-0047',
     vanPlate: 'GJ-17-CD-2255',
     scheduled: '07:30',
     started: '-',
@@ -1106,7 +1106,7 @@ export const SEED_AUDIT_LOGS: AuditLogEntry[] = [
     user: { name: 'Meena Parmar', role: 'inspector', initials: 'MP' },
     role: 'inspector',
     action: 'Enrolled driver',
-    target: 'GDH-D-0048',
+    target: 'GJ-0048',
     device: 'Chrome, Godhra'
   },
   {

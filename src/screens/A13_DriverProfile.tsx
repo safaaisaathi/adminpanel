@@ -203,7 +203,7 @@ export const A13_DriverProfile: React.FC<A13DriverProfileProps> = ({
                 <div>
                   <div className="text-[11px] text-[#566259]">Emergency contact</div>
                   <div className="font-bold text-[#14201A] dark:text-[#EAF2E6]">
-                    {driver.emergencyContact?.name || 'Kanta Ben'}, {driver.emergencyContact?.phone || '+91 98xxxx88'}
+                    {driver.emergencyContact?.name || 'Kanta Ben'}, {driver.emergencyContact?.phone || '+91 98251 08800'}
                   </div>
                 </div>
                 <div>

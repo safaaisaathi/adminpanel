@@ -22,7 +22,13 @@ export const A11_EnrollDriver: React.FC<A11EnrollDriverProps> = ({
   onNavigateTo,
   onDriverEnrolled,
 }) => {
-  const { enrollDriver, vans, wards } = useApp();
+  const { enrollDriver, vans, wards, drivers } = useApp();
+
+  // Driver ID format 'XX-0000' (starting 2 alphabets and 4 digits e.g. GJ-0048)
+  const nextSeq = Math.max(1, 48 + (drivers?.length || 0) - 6);
+  const defaultDriverId = `GJ-${String(nextSeq).padStart(4, '0')}`;
+  const [driverId, setDriverId] = useState(defaultDriverId);
+  const [driverIdError, setDriverIdError] = useState('');
 
   // Personal details
   const [fullName, setFullName] = useState('');
@@ -50,6 +56,24 @@ export const A11_EnrollDriver: React.FC<A11EnrollDriverProps> = ({
   const [sendSms, setSendSms] = useState(true);
   const [copiedId, setCopiedId] = useState(false);
 
+  const handleDriverIdChange = (val: string) => {
+    let formatted = val.toUpperCase().replace(/[^A-Z0-9-]/g, '');
+    if (formatted.length === 2 && !formatted.includes('-') && /^[A-Z]{2}$/.test(formatted)) {
+      formatted = formatted + '-';
+    }
+    if (formatted.length > 7) {
+      formatted = formatted.slice(0, 7);
+    }
+    setDriverId(formatted);
+
+    const regex = /^[A-Z]{2}-\d{4}$/;
+    if (!regex.test(formatted)) {
+      setDriverIdError("Driver ID must follow 'XX-0000' format (2 letters, hyphen, 4 digits e.g. GJ-0048)");
+    } else {
+      setDriverIdError('');
+    }
+  };
+
   const toggleWard = (wardId: string) => {
     if (selectedWards.includes(wardId)) {
       setSelectedWards(selectedWards.filter((w) => w !== wardId));
@@ -65,16 +89,23 @@ export const A11_EnrollDriver: React.FC<A11EnrollDriverProps> = ({
       return;
     }
 
+    const regex = /^[A-Z]{2}-\d{4}$/;
+    if (!regex.test(driverId)) {
+      alert("Invalid Driver ID! Driver ID must strictly follow 'XX-0000' format (starting 2 letters followed by hyphen and 4 digits, e.g. GJ-0048)");
+      return;
+    }
+
     const van = vans.find((v) => v.id === selectedVanId);
 
     const newDriver = enrollDriver({
+      driverId,
       name: fullName.trim(),
       phone: phone.startsWith('+91') ? phone : `+91 ${phone}`,
       dob,
       address,
       emergencyContact: {
         name: emergencyName || 'Family contact',
-        phone: emergencyPhone || '+91 98xxxx00'
+        phone: emergencyPhone || '+91 98251 00000'
       },
       licenceNumber,
       licenceClass,
@@ -151,7 +182,7 @@ export const A11_EnrollDriver: React.FC<A11EnrollDriverProps> = ({
                       required
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      placeholder="+91 98xxxx48"
+                      placeholder="+91 98251 00048"
                       className="w-full rounded-2xl bg-[#F8FAF7] dark:bg-[#111A14] border border-[#E5EAE3] dark:border-[#2A3B31] px-4 py-2.5 text-xs text-[#14201A] dark:text-[#EAF2E6] outline-none"
                     />
                   </div>
@@ -387,26 +418,53 @@ export const A11_EnrollDriver: React.FC<A11EnrollDriverProps> = ({
               Login credentials
             </h3>
 
-            <div className="p-3.5 rounded-2xl bg-[#F3FAF4] dark:bg-[#162B1D] border border-emerald-200 dark:border-emerald-900/50 flex items-center justify-between">
-              <div>
-                <div className="text-[10px] text-emerald-800 dark:text-emerald-300 font-semibold">
-                  Driver ID (automatic)
+            <div className="p-3.5 rounded-2xl bg-[#F3FAF4] dark:bg-[#162B1D] border border-emerald-200 dark:border-emerald-900/50">
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="text-[10px] text-emerald-800 dark:text-emerald-300 font-semibold uppercase tracking-wider">
+                  Driver ID (Format: XX-0000)
                 </div>
-                <div className="text-lg font-bold font-mono text-[#1B7A3F] dark:text-[#6DB36F]">
-                  GDH-D-0048
-                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(driverId);
+                    setCopiedId(true);
+                    setTimeout(() => setCopiedId(false), 2000);
+                  }}
+                  className="px-2 py-1 text-[#1B7A3F] dark:text-[#6DB36F] hover:bg-white dark:hover:bg-[#111A14] rounded-lg transition-colors flex items-center gap-1 text-xs font-semibold"
+                  title="Copy Driver ID"
+                >
+                  {copiedId ? (
+                    <>
+                      <Check size={14} />
+                      <span className="text-[10px]">Copied</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={14} />
+                      <span className="text-[10px]">Copy</span>
+                    </>
+                  )}
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => {
-                  navigator.clipboard.writeText('GDH-D-0048');
-                  setCopiedId(true);
-                  setTimeout(() => setCopiedId(false), 2000);
-                }}
-                className="p-1.5 text-[#1B7A3F] hover:bg-white rounded-xl transition-colors"
-              >
-                {copiedId ? <Check size={16} /> : <Copy size={16} />}
-              </button>
+
+              <div className="relative">
+                <input
+                  type="text"
+                  value={driverId}
+                  onChange={(e) => handleDriverIdChange(e.target.value)}
+                  maxLength={7}
+                  placeholder="GJ-0048"
+                  className="w-full bg-white dark:bg-[#111A14] border border-emerald-300 dark:border-emerald-700 rounded-xl px-3.5 py-2 text-lg font-bold font-mono tracking-widest text-[#1B7A3F] dark:text-[#6DB36F] outline-none uppercase focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+
+              {driverIdError ? (
+                <p className="text-[11px] text-red-500 mt-1 font-medium">{driverIdError}</p>
+              ) : (
+                <p className="text-[10px] text-emerald-700 dark:text-emerald-400 mt-1 font-medium">
+                  ✓ Valid format (2 letters + hyphen + 4 digits, e.g. GJ-0048)
+                </p>
+              )}
             </div>
 
             <p className="text-[11px] text-[#566259] dark:text-[#9DB0A2] mt-2.5">

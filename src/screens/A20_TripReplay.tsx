@@ -152,10 +152,9 @@ export const A20_TripReplay: React.FC<A20TripReplayProps> = ({ onNavigateTo }) =
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 16px;
         box-shadow: 0 4px 10px rgba(0,0,0,0.35);
         transform: translate(-50%, -50%);
-      ">🛺</div>`,
+      "><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.24-4.05a1 1 0 0 0-.78-.38H14v9.7"/><circle cx="7" cy="18" r="2" fill="#FFFFFF"/><circle cx="17" cy="18" r="2" fill="#FFFFFF"/></svg></div>`,
       iconSize: [0, 0]
     });
 

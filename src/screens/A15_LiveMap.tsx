@@ -16,7 +16,9 @@ import {
   Activity,
   Layers,
   MapPin,
-  Compass
+  Compass,
+  Copy,
+  Check
 } from 'lucide-react';
 
 interface A15LiveMapProps {
@@ -35,6 +37,10 @@ export const A15_LiveMap: React.FC<A15LiveMapProps> = ({ onNavigateTo }) => {
 
   // Selected van for A16 Van Details Bubble (null by default to avoid covering the map)
   const [selectedVan, setSelectedVan] = useState<Van | null>(null);
+
+  // Call modal state
+  const [showCallModal, setShowCallModal] = useState(false);
+  const [phoneCopied, setPhoneCopied] = useState(false);
 
   // Map Tile Style ('streets' | 'satellite')
   const [mapStyle, setMapStyle] = useState<'streets' | 'satellite'>('streets');
@@ -191,11 +197,16 @@ export const A15_LiveMap: React.FC<A15LiveMapProps> = ({ onNavigateTo }) => {
               align-items: center;
               justify-content: center;
               box-shadow: 0 4px 10px rgba(0,0,0,0.35);
-              font-size: 16px;
               transform: ${isSelected ? 'scale(1.15)' : 'scale(1)'};
               transition: transform 0.2s ease;
             ">
-              🛺
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:block;">
+                <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/>
+                <path d="M15 18H9"/>
+                <path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.24-4.05a1 1 0 0 0-.78-.38H14v9.7"/>
+                <circle cx="7" cy="18" r="2" fill="#FFFFFF"/>
+                <circle cx="17" cy="18" r="2" fill="#FFFFFF"/>
+              </svg>
             </div>
             <div style="
               background: #111A14;
@@ -437,7 +448,7 @@ export const A15_LiveMap: React.FC<A15LiveMapProps> = ({ onNavigateTo }) => {
                   {selectedDriver?.name || 'Ramesh Bhai'}
                 </h4>
                 <div className="text-[11px] text-[#566259] dark:text-[#9DB0A2] truncate">
-                  {selectedDriver?.driverId || 'GDH-D-0042'} · {selectedDriver?.phone || '+91 98xxxx42'}
+                  {selectedDriver?.driverId || 'GJ-0042'} · {selectedDriver?.phone || '+91 98251 04200'}
                 </div>
               </div>
             </div>
@@ -519,13 +530,17 @@ export const A15_LiveMap: React.FC<A15LiveMapProps> = ({ onNavigateTo }) => {
 
           {/* Action Buttons: Call, Message, Trail */}
           <div className="grid grid-cols-3 gap-1.5 mt-2">
-            <a
-              href={`tel:${selectedDriver?.phone || '+919800000000'}`}
-              className="flex items-center justify-center gap-1 rounded-full border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-[#111A14] py-1.5 text-xs font-bold text-[#14201A] dark:text-[#EAF2E6] hover:bg-neutral-50"
+            <button
+              type="button"
+              onClick={() => {
+                setShowCallModal(true);
+                setPhoneCopied(false);
+              }}
+              className="flex items-center justify-center gap-1 rounded-full border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-[#111A14] py-1.5 text-xs font-bold text-[#14201A] dark:text-[#EAF2E6] hover:bg-neutral-50 active:scale-95 transition-all"
             >
-              <Phone size={12} />
+              <Phone size={12} className="text-[#1B7A3F]" />
               <span>Call</span>
-            </a>
+            </button>
             <button
               onClick={() => onNavigateTo('notices')}
               className="flex items-center justify-center gap-1 rounded-full border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-[#111A14] py-1.5 text-xs font-bold text-[#14201A] dark:text-[#EAF2E6] hover:bg-neutral-50"
@@ -550,6 +565,119 @@ export const A15_LiveMap: React.FC<A15LiveMapProps> = ({ onNavigateTo }) => {
             <span>Open driver and van details</span>
             <ArrowRight size={13} />
           </button>
+        </div>
+      )}
+
+      {/* Driver Contact & Call Modal */}
+      {showCallModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+          <div className="w-full max-w-sm rounded-[24px] bg-white dark:bg-[#16221B] border border-[#E5EAE3] dark:border-[#2A3B31] shadow-2xl overflow-hidden p-5 space-y-4">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-[#1B7A3F] dark:text-[#6DB36F] flex items-center justify-center">
+                  <Phone size={16} />
+                </div>
+                <h3 className="text-sm font-bold text-[#14201A] dark:text-[#EAF2E6]">
+                  Driver Contact Details
+                </h3>
+              </div>
+              <button
+                onClick={() => {
+                  setShowCallModal(false);
+                  setPhoneCopied(false);
+                }}
+                className="p-1 rounded-full text-neutral-400 hover:text-neutral-700 dark:hover:text-white"
+                title="Close"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Driver summary card */}
+            <div className="p-3.5 rounded-2xl bg-[#F8FAF7] dark:bg-[#111A14] border border-[#E5EAE3] dark:border-[#2A3B31] flex items-center gap-3">
+              <div className="h-12 w-12 rounded-full bg-[#1B7A3F] text-white font-bold text-base flex items-center justify-center shrink-0">
+                {(selectedDriver?.name || 'RB').slice(0, 2).toUpperCase()}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="font-bold text-sm text-[#14201A] dark:text-[#EAF2E6] truncate">
+                  {selectedDriver?.name || 'Ramesh Bhai'}
+                </div>
+                <div className="text-xs text-[#566259] dark:text-[#9DB0A2]">
+                  ID: <span className="font-mono font-bold text-[#1B7A3F] dark:text-[#6DB36F]">{selectedDriver?.driverId || 'GJ-0042'}</span> · {selectedVan?.plateNo || 'GJ-17-AB-1234'}
+                </div>
+                <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5">
+                  ● On Duty · Van Speed: {selectedVan?.lastLocation?.speedKmph || 18} km/h
+                </div>
+              </div>
+            </div>
+
+            {/* Phone Number Display Box */}
+            <div className="p-3.5 rounded-2xl bg-[#EAF5EC] dark:bg-[#162B1D] border border-emerald-300 dark:border-emerald-800">
+              <div className="text-[10px] uppercase font-bold tracking-wider text-emerald-800 dark:text-emerald-300">
+                Driver Phone Number
+              </div>
+              <div className="mt-1 flex items-center justify-between">
+                <span className="text-xl font-bold font-mono tracking-wide text-[#14201A] dark:text-[#EAF2E6]">
+                  {selectedDriver?.phone || '+91 98251 04200'}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(selectedDriver?.phone || '+91 98251 04200');
+                    setPhoneCopied(true);
+                    setTimeout(() => setPhoneCopied(false), 2500);
+                  }}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm ${
+                    phoneCopied
+                      ? 'bg-[#1B7A3F] text-white'
+                      : 'bg-white dark:bg-[#111A14] text-[#1B7A3F] dark:text-[#6DB36F] border border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/40'
+                  }`}
+                  title="Copy Phone Number"
+                >
+                  {phoneCopied ? (
+                    <>
+                      <Check size={14} />
+                      <span>Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={14} />
+                      <span>Copy</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Emergency Phone if available */}
+            {selectedDriver?.emergencyContact && (
+              <div className="text-[11px] text-[#566259] dark:text-[#9DB0A2] px-1">
+                Emergency: {selectedDriver.emergencyContact.name} ({selectedDriver.emergencyContact.phone})
+              </div>
+            )}
+
+            {/* Action buttons */}
+            <div className="grid grid-cols-2 gap-2 pt-1">
+              <a
+                href={`tel:${(selectedDriver?.phone || '+919825104200').replace(/\s+/g, '')}`}
+                className="flex items-center justify-center gap-1.5 rounded-xl bg-[#1B7A3F] hover:bg-[#145d30] text-white py-2.5 text-xs font-bold shadow transition-colors active:scale-95"
+              >
+                <Phone size={14} />
+                <span>Call Now</span>
+              </a>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowCallModal(false);
+                  setPhoneCopied(false);
+                }}
+                className="rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-[#111A14] py-2.5 text-xs font-bold text-[#14201A] dark:text-[#EAF2E6] hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
