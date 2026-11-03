@@ -3,8 +3,23 @@
 
 export type WardType = 'urban' | 'rural';
 export type VanStatus = 'idle' | 'on_shift' | 'offline';
-export type ComplaintCategory = 'garbage_dump' | 'open_gutter' | 'missed_collection' | 'other';
-export type ComplaintStatus = 'received' | 'assigned' | 'resolved' | 'escalated';
+export type ComplaintCategory =
+  | 'garbage_dump'
+  | 'open_gutter'
+  | 'missed_collection'
+  | 'dead_animal'
+  | 'public_toilet'
+  | 'construction_debris'
+  | 'hazardous_waste'
+  | 'other';
+export type ComplaintStatus =
+  | 'received'
+  | 'assigned'
+  | 'in_progress'
+  | 'pending_verification'
+  | 'resolved'
+  | 'escalated'
+  | 'reopened';
 export type EscalationLevel = 0 | 1 | 2; // 0 (inspector), 1 (chief officer / TDO), 2 (DDO)
 export type NoticeTargetType = 'van' | 'ward' | 'all' | 'citizens';
 export type StaffRole = 'inspector' | 'chief_officer' | 'tdo' | 'ddo';

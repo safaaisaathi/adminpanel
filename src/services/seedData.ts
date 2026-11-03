@@ -14,1272 +14,3246 @@ import {
   Staff
 } from '../types';
 
+// Dynamic Date & Time Helpers
+const NOW = Date.now();
+const minutesAgo = (m: number) => new Date(NOW - m * 60 * 1000).toISOString();
+const hoursAgo = (h: number) => new Date(NOW - h * 3600 * 1000).toISOString();
+const daysAgoStr = (days: number) => {
+  const dt = new Date(NOW - days * 86400 * 1000);
+  const y = dt.getFullYear();
+  const m = String(dt.getMonth() + 1).padStart(2, '0');
+  const d = String(dt.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+};
+const formatAuditTime = (ageMinutes: number) => {
+  if (ageMinutes < 720) {
+    const dt = new Date(NOW - ageMinutes * 60 * 1000);
+    return `${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
+  }
+  return 'Yesterday';
+};
+const formatAlertTimeAgo = (ageMinutes: number) => {
+  if (ageMinutes < 60) return `${ageMinutes} min ago`;
+  const hr = Math.floor(ageMinutes / 60);
+  return `${hr} hr ago`;
+};
+const makeTicketId = (createdAtIso: string, num: string) => {
+  const ymd = createdAtIso.slice(0, 10).replace(/-/g, '');
+  return `PMH-${ymd}-${num}`;
+};
+
+// 1. WARDS (16 Godhra Wards W01..W16)
 export const SEED_WARDS: Ward[] = [
   {
-    id: 'ward_4',
-    name: 'Ward 4',
-    nameGu: 'વૉર્ડ ૪',
-    code: 'GDH-W-004',
-    type: 'urban',
-    center: { lat: 22.772, lng: 73.608 },
-    radiusM: 650,
-    routeId: 'route_east',
-    inspectorId: 'staff_inspector_meena',
-    escalationTo: 'staff_co_rakesh',
-    areaKm2: 1.21,
-    pointsCount: 7,
-    polygon: [
-      [22.775, 73.604],
-      [22.776, 73.612],
-      [22.771, 73.614],
-      [22.768, 73.607],
-      [22.770, 73.602],
-      [22.775, 73.604],
+    "id": "W01",
+    "name": "Ward 1 - Vohrawad",
+    "nameGu": "વોર્ડ 1 - વોહરાવાડ",
+    "code": "GD-W01",
+    "type": "urban",
+    "center": {
+      "lat": 22.785,
+      "lng": 73.61
+    },
+    "radiusM": 520,
+    "routeId": "RT-GDR-01",
+    "inspectorId": "STF-INS-01",
+    "escalationTo": "STF-CO-01",
+    "areaKm2": 0.85,
+    "pointsCount": 6,
+    "polygon": [
+      [
+        22.785541,
+        73.614919
+      ],
+      [
+        22.78908,
+        73.613157
+      ],
+      [
+        22.789247,
+        73.606866
+      ],
+      [
+        22.785227,
+        73.605265
+      ],
+      [
+        22.7803,
+        73.607248
+      ],
+      [
+        22.781167,
+        73.612382
+      ]
     ],
-    createdDate: '10 May 2026',
-    createdBy: 'R. Shah',
-    history: [
-      { date: '10 May 2026', action: 'Created by R. Shah' },
-      { date: '15 Jul 2026', action: 'Inspector assigned: M. Parmar' }
+    "createdDate": "12 Jun 2026",
+    "createdBy": "Shri R. K. Patel",
+    "history": [
+      {
+        "date": "12 Jun 2026",
+        "action": "Created by R. K. Patel"
+      },
+      {
+        "date": "02 Aug 2026",
+        "action": "Boundary edited"
+      },
+      {
+        "date": "14 Sep 2026",
+        "action": "Inspector assigned"
+      }
     ]
   },
   {
-    id: 'ward_5',
-    name: 'Ward 5',
-    nameGu: 'વૉર્ડ ૫',
-    code: 'GDH-W-005',
-    type: 'urban',
-    center: { lat: 22.778, lng: 73.618 },
-    radiusM: 750,
-    routeId: 'route_east',
-    inspectorId: 'staff_inspector_meena',
-    escalationTo: 'staff_co_rakesh',
-    areaKm2: 1.84,
-    pointsCount: 8,
-    polygon: [
-      [22.782, 73.614],
-      [22.785, 73.623],
-      [22.780, 73.627],
-      [22.775, 73.624],
-      [22.773, 73.617],
-      [22.777, 73.613],
-      [22.782, 73.614],
+    "id": "W02",
+    "name": "Ward 2 - Raipur",
+    "nameGu": "વોર્ડ 2 - રાયપુર",
+    "code": "GD-W02",
+    "type": "urban",
+    "center": {
+      "lat": 22.782,
+      "lng": 73.617
+    },
+    "radiusM": 480,
+    "routeId": "RT-GDR-01",
+    "inspectorId": "STF-INS-01",
+    "escalationTo": "STF-CO-01",
+    "areaKm2": 0.72,
+    "pointsCount": 6,
+    "polygon": [
+      [
+        22.782824,
+        73.621941
+      ],
+      [
+        22.785231,
+        73.61992
+      ],
+      [
+        22.785804,
+        73.613622
+      ],
+      [
+        22.782594,
+        73.612819
+      ],
+      [
+        22.77754,
+        73.61504
+      ],
+      [
+        22.777831,
+        73.618927
+      ]
     ],
-    createdDate: '12 Jun 2026',
-    createdBy: 'R. Shah',
-    history: [
-      { date: '12 Jun 2026', action: 'Created by R. Shah' },
-      { date: '02 Aug 2026', action: 'Boundary edited' },
-      { date: '14 Sep 2026', action: 'Inspector changed to M. Parmar' }
+    "createdDate": "12 Jun 2026",
+    "createdBy": "Shri R. K. Patel",
+    "history": [
+      {
+        "date": "12 Jun 2026",
+        "action": "Created by R. K. Patel"
+      },
+      {
+        "date": "02 Aug 2026",
+        "action": "Boundary edited"
+      },
+      {
+        "date": "14 Sep 2026",
+        "action": "Inspector assigned"
+      }
     ]
   },
   {
-    id: 'ward_6',
-    name: 'Ward 6',
-    nameGu: 'વૉર્ડ ૬',
-    code: 'GDH-W-006',
-    type: 'urban',
-    center: { lat: 22.768, lng: 73.615 },
-    radiusM: 700,
-    routeId: 'route_east',
-    inspectorId: 'staff_inspector_meena',
-    escalationTo: 'staff_co_rakesh',
-    areaKm2: 1.52,
-    pointsCount: 6,
-    polygon: [
-      [22.771, 73.611],
-      [22.773, 73.621],
-      [22.766, 73.623],
-      [22.763, 73.615],
-      [22.767, 73.609],
-      [22.771, 73.611],
+    "id": "W03",
+    "name": "Ward 3 - Bhadrapura",
+    "nameGu": "વોર્ડ 3 - ભદ્રાપુરા",
+    "code": "GD-W03",
+    "type": "urban",
+    "center": {
+      "lat": 22.779,
+      "lng": 73.623
+    },
+    "radiusM": 460,
+    "routeId": "RT-GDR-01",
+    "inspectorId": "STF-INS-01",
+    "escalationTo": "STF-CO-01",
+    "areaKm2": 0.66,
+    "pointsCount": 7,
+    "polygon": [
+      [
+        22.779703,
+        73.628006
+      ],
+      [
+        22.781405,
+        73.625877
+      ],
+      [
+        22.783312,
+        73.621049
+      ],
+      [
+        22.781472,
+        73.61931
+      ],
+      [
+        22.776467,
+        73.619237
+      ],
+      [
+        22.774736,
+        73.621036
+      ],
+      [
+        22.776549,
+        73.625995
+      ]
     ],
-    createdDate: '15 Jun 2026',
-    createdBy: 'R. Shah',
-    history: [{ date: '15 Jun 2026', action: 'Created by R. Shah' }]
-  },
-  {
-    id: 'ward_7',
-    name: 'Ward 7',
-    nameGu: 'વૉર્ડ ૭',
-    code: 'GDH-W-007',
-    type: 'urban',
-    center: { lat: 22.772, lng: 73.626 },
-    radiusM: 850,
-    routeId: 'route_east',
-    inspectorId: 'staff_inspector_mahesh',
-    escalationTo: 'staff_co_rakesh',
-    areaKm2: 2.10,
-    pointsCount: 8,
-    polygon: [
-      [22.777, 73.623],
-      [22.779, 73.633],
-      [22.771, 73.635],
-      [22.766, 73.628],
-      [22.769, 73.621],
-      [22.777, 73.623],
-    ],
-    createdDate: '20 Jun 2026',
-    createdBy: 'R. Shah',
-    history: [
-      { date: '20 Jun 2026', action: 'Created by R. Shah' },
-      { date: '25 Aug 2026', action: 'Added to East Route' }
+    "createdDate": "12 Jun 2026",
+    "createdBy": "Shri R. K. Patel",
+    "history": [
+      {
+        "date": "12 Jun 2026",
+        "action": "Created by R. K. Patel"
+      },
+      {
+        "date": "02 Aug 2026",
+        "action": "Boundary edited"
+      },
+      {
+        "date": "14 Sep 2026",
+        "action": "Inspector assigned"
+      }
     ]
   },
   {
-    id: 'ward_8',
-    name: 'Ward 8',
-    nameGu: 'વૉર્ડ ૮',
-    code: 'GDH-W-008',
-    type: 'urban',
-    center: { lat: 22.758, lng: 73.616 },
-    radiusM: 600,
-    routeId: 'route_west',
-    inspectorId: '',
-    escalationTo: 'staff_co_rakesh',
-    areaKm2: 0.96,
-    pointsCount: 6,
-    polygon: [
-      [22.762, 73.612],
-      [22.763, 73.621],
-      [22.756, 73.622],
-      [22.754, 73.614],
-      [22.762, 73.612],
+    "id": "W04",
+    "name": "Ward 4 - Sigra",
+    "nameGu": "વોર્ડ 4 - સિગરા",
+    "code": "GD-W04",
+    "type": "urban",
+    "center": {
+      "lat": 22.776,
+      "lng": 73.611
+    },
+    "radiusM": 540,
+    "routeId": "RT-GDR-01",
+    "inspectorId": "STF-INS-01",
+    "escalationTo": "STF-CO-01",
+    "areaKm2": 0.92,
+    "pointsCount": 6,
+    "polygon": [
+      [
+        22.77627,
+        73.616971
+      ],
+      [
+        22.779957,
+        73.613902
+      ],
+      [
+        22.780232,
+        73.607744
+      ],
+      [
+        22.776619,
+        73.605254
+      ],
+      [
+        22.771806,
+        73.60914
+      ],
+      [
+        22.770833,
+        73.61319
+      ]
     ],
-    createdDate: '01 Jul 2026',
-    createdBy: 'R. Shah',
-    history: [{ date: '01 Jul 2026', action: 'Created by R. Shah' }]
+    "createdDate": "12 Jun 2026",
+    "createdBy": "Shri R. K. Patel",
+    "history": [
+      {
+        "date": "12 Jun 2026",
+        "action": "Created by R. K. Patel"
+      },
+      {
+        "date": "02 Aug 2026",
+        "action": "Boundary edited"
+      },
+      {
+        "date": "14 Sep 2026",
+        "action": "Inspector assigned"
+      }
+    ]
   },
   {
-    id: 'ward_9',
-    name: 'Ward 9',
-    nameGu: 'વૉર્ડ ૯',
-    code: 'GDH-W-009',
-    type: 'urban',
-    center: { lat: 22.784, lng: 73.605 },
-    radiusM: 750,
-    routeId: 'route_east',
-    inspectorId: 'staff_inspector_meena',
-    escalationTo: 'staff_co_rakesh',
-    areaKm2: 1.84,
-    pointsCount: 9,
-    polygon: [
-      [22.789, 73.601],
-      [22.791, 73.611],
-      [22.785, 73.614],
-      [22.780, 73.610],
-      [22.779, 73.603],
-      [22.784, 73.599],
-      [22.789, 73.601],
+    "id": "W05",
+    "name": "Ward 5 - Navi Pole",
+    "nameGu": "વોર્ડ 5 - નવી પોળ",
+    "code": "GD-W05",
+    "type": "urban",
+    "center": {
+      "lat": 22.774,
+      "lng": 73.618
+    },
+    "radiusM": 430,
+    "routeId": "RT-GDR-02",
+    "inspectorId": "STF-INS-01",
+    "escalationTo": "STF-CO-01",
+    "areaKm2": 0.58,
+    "pointsCount": 6,
+    "polygon": [
+      [
+        22.773674,
+        73.622559
+      ],
+      [
+        22.777722,
+        73.620044
+      ],
+      [
+        22.777305,
+        73.616072
+      ],
+      [
+        22.773986,
+        73.613231
+      ],
+      [
+        22.770908,
+        73.616169
+      ],
+      [
+        22.770174,
+        73.620133
+      ]
     ],
-    createdDate: '28 Oct 2026',
-    createdBy: 'R. Shah',
-    history: [{ date: '28 Oct 2026', action: 'Created by R. Shah' }]
+    "createdDate": "12 Jun 2026",
+    "createdBy": "Shri R. K. Patel",
+    "history": [
+      {
+        "date": "12 Jun 2026",
+        "action": "Created by R. K. Patel"
+      },
+      {
+        "date": "02 Aug 2026",
+        "action": "Boundary edited"
+      },
+      {
+        "date": "14 Sep 2026",
+        "action": "Inspector assigned"
+      }
+    ]
+  },
+  {
+    "id": "W06",
+    "name": "Ward 6 - Rampura",
+    "nameGu": "વોર્ડ 6 - રામપુરા",
+    "code": "GD-W06",
+    "type": "urban",
+    "center": {
+      "lat": 22.771,
+      "lng": 73.625
+    },
+    "radiusM": 500,
+    "routeId": "RT-GDR-02",
+    "inspectorId": "STF-INS-01",
+    "escalationTo": "STF-CO-01",
+    "areaKm2": 0.79,
+    "pointsCount": 5,
+    "polygon": [
+      [
+        22.770257,
+        73.629824
+      ],
+      [
+        22.776034,
+        73.625883
+      ],
+      [
+        22.773721,
+        73.621948
+      ],
+      [
+        22.767545,
+        73.620984
+      ],
+      [
+        22.766503,
+        73.626054
+      ]
+    ],
+    "createdDate": "12 Jun 2026",
+    "createdBy": "Shri R. K. Patel",
+    "history": [
+      {
+        "date": "12 Jun 2026",
+        "action": "Created by R. K. Patel"
+      },
+      {
+        "date": "02 Aug 2026",
+        "action": "Boundary edited"
+      },
+      {
+        "date": "14 Sep 2026",
+        "action": "Inspector assigned"
+      }
+    ]
+  },
+  {
+    "id": "W07",
+    "name": "Ward 7 - Lakhana",
+    "nameGu": "વોર્ડ 7 - લખાણા",
+    "code": "GD-W07",
+    "type": "urban",
+    "center": {
+      "lat": 22.768,
+      "lng": 73.612
+    },
+    "radiusM": 470,
+    "routeId": "RT-GDR-02",
+    "inspectorId": "STF-INS-01",
+    "escalationTo": "STF-CO-01",
+    "areaKm2": 0.69,
+    "pointsCount": 6,
+    "polygon": [
+      [
+        22.767356,
+        73.616014
+      ],
+      [
+        22.772527,
+        73.613763
+      ],
+      [
+        22.771937,
+        73.610478
+      ],
+      [
+        22.767199,
+        73.607207
+      ],
+      [
+        22.76442,
+        73.608759
+      ],
+      [
+        22.76497,
+        73.614697
+      ]
+    ],
+    "createdDate": "12 Jun 2026",
+    "createdBy": "Shri R. K. Patel",
+    "history": [
+      {
+        "date": "12 Jun 2026",
+        "action": "Created by R. K. Patel"
+      },
+      {
+        "date": "02 Aug 2026",
+        "action": "Boundary edited"
+      },
+      {
+        "date": "14 Sep 2026",
+        "action": "Inspector assigned"
+      }
+    ]
+  },
+  {
+    "id": "W08",
+    "name": "Ward 8 - Bhuravav",
+    "nameGu": "વોર્ડ 8 - ભુરાવાવ",
+    "code": "GD-W08",
+    "type": "urban",
+    "center": {
+      "lat": 22.765,
+      "lng": 73.62
+    },
+    "radiusM": 450,
+    "routeId": "RT-GDR-03",
+    "inspectorId": "STF-INS-01",
+    "escalationTo": "STF-CO-01",
+    "areaKm2": 0.64,
+    "pointsCount": 6,
+    "polygon": [
+      [
+        22.764639,
+        73.624147
+      ],
+      [
+        22.769053,
+        73.621898
+      ],
+      [
+        22.769052,
+        73.618198
+      ],
+      [
+        22.76442,
+        73.61582
+      ],
+      [
+        22.761422,
+        73.61684
+      ],
+      [
+        22.76215,
+        73.622566
+      ]
+    ],
+    "createdDate": "12 Jun 2026",
+    "createdBy": "Shri R. K. Patel",
+    "history": [
+      {
+        "date": "12 Jun 2026",
+        "action": "Created by R. K. Patel"
+      },
+      {
+        "date": "02 Aug 2026",
+        "action": "Boundary edited"
+      },
+      {
+        "date": "14 Sep 2026",
+        "action": "Inspector assigned"
+      }
+    ]
+  },
+  {
+    "id": "W09",
+    "name": "Ward 9 - Prabhu Nagar",
+    "nameGu": "વોર્ડ 9 - પ્રભુ નગર",
+    "code": "GD-W09",
+    "type": "urban",
+    "center": {
+      "lat": 22.782,
+      "lng": 73.63
+    },
+    "radiusM": 490,
+    "routeId": "RT-GDR-03",
+    "inspectorId": "STF-INS-02",
+    "escalationTo": "STF-CO-01",
+    "areaKm2": 0.75,
+    "pointsCount": 7,
+    "polygon": [
+      [
+        22.78214,
+        73.635025
+      ],
+      [
+        22.78544,
+        73.632993
+      ],
+      [
+        22.7869,
+        73.628906
+      ],
+      [
+        22.783516,
+        73.626158
+      ],
+      [
+        22.780163,
+        73.625015
+      ],
+      [
+        22.777512,
+        73.629357
+      ],
+      [
+        22.778142,
+        73.632613
+      ]
+    ],
+    "createdDate": "12 Jun 2026",
+    "createdBy": "Shri R. K. Patel",
+    "history": [
+      {
+        "date": "12 Jun 2026",
+        "action": "Created by R. K. Patel"
+      },
+      {
+        "date": "02 Aug 2026",
+        "action": "Boundary edited"
+      },
+      {
+        "date": "14 Sep 2026",
+        "action": "Inspector assigned"
+      }
+    ]
+  },
+  {
+    "id": "W10",
+    "name": "Ward 10 - Kankunaka",
+    "nameGu": "વોર્ડ 10 - કાંકુનાકા",
+    "code": "GD-W10",
+    "type": "urban",
+    "center": {
+      "lat": 22.778,
+      "lng": 73.636
+    },
+    "radiusM": 410,
+    "routeId": "RT-GDR-03",
+    "inspectorId": "STF-INS-02",
+    "escalationTo": "STF-CO-01",
+    "areaKm2": 0.53,
+    "pointsCount": 6,
+    "polygon": [
+      [
+        22.778575,
+        73.640432
+      ],
+      [
+        22.780613,
+        73.638126
+      ],
+      [
+        22.7814,
+        73.633347
+      ],
+      [
+        22.778293,
+        73.632054
+      ],
+      [
+        22.774501,
+        73.634093
+      ],
+      [
+        22.774401,
+        73.638084
+      ]
+    ],
+    "createdDate": "12 Jun 2026",
+    "createdBy": "Shri R. K. Patel",
+    "history": [
+      {
+        "date": "12 Jun 2026",
+        "action": "Created by R. K. Patel"
+      },
+      {
+        "date": "02 Aug 2026",
+        "action": "Boundary edited"
+      },
+      {
+        "date": "14 Sep 2026",
+        "action": "Inspector assigned"
+      }
+    ]
+  },
+  {
+    "id": "W11",
+    "name": "Ward 11 - Godhra GIDC",
+    "nameGu": "વોર્ડ 11 - ગોધરા જીઆઈડીસી",
+    "code": "GD-W11",
+    "type": "urban",
+    "center": {
+      "lat": 22.772,
+      "lng": 73.642
+    },
+    "radiusM": 700,
+    "routeId": "RT-GDR-04",
+    "inspectorId": "STF-INS-02",
+    "escalationTo": "STF-CO-01",
+    "areaKm2": 1.54,
+    "pointsCount": 8,
+    "polygon": [
+      [
+        22.773287,
+        73.649646
+      ],
+      [
+        22.775435,
+        73.64735
+      ],
+      [
+        22.77875,
+        73.640716
+      ],
+      [
+        22.777566,
+        73.637714
+      ],
+      [
+        22.771066,
+        73.635535
+      ],
+      [
+        22.767676,
+        73.635792
+      ],
+      [
+        22.766243,
+        73.642769
+      ],
+      [
+        22.766583,
+        73.646755
+      ]
+    ],
+    "createdDate": "12 Jun 2026",
+    "createdBy": "Shri R. K. Patel",
+    "history": [
+      {
+        "date": "12 Jun 2026",
+        "action": "Created by R. K. Patel"
+      },
+      {
+        "date": "02 Aug 2026",
+        "action": "Boundary edited"
+      },
+      {
+        "date": "14 Sep 2026",
+        "action": "Inspector assigned"
+      }
+    ]
+  },
+  {
+    "id": "W12",
+    "name": "Ward 12 - Station Road",
+    "nameGu": "વોર્ડ 12 - સ્ટેશન રોડ",
+    "code": "GD-W12",
+    "type": "urban",
+    "center": {
+      "lat": 22.77,
+      "lng": 73.63
+    },
+    "radiusM": 380,
+    "routeId": "RT-GDR-04",
+    "inspectorId": "STF-INS-02",
+    "escalationTo": "STF-CO-01",
+    "areaKm2": 0.45,
+    "pointsCount": 6,
+    "polygon": [
+      [
+        22.770499,
+        73.634062
+      ],
+      [
+        22.772835,
+        73.632434
+      ],
+      [
+        22.772642,
+        73.62767
+      ],
+      [
+        22.77066,
+        73.625865
+      ],
+      [
+        22.767165,
+        73.628894
+      ],
+      [
+        22.76638,
+        73.6314
+      ]
+    ],
+    "createdDate": "12 Jun 2026",
+    "createdBy": "Shri R. K. Patel",
+    "history": [
+      {
+        "date": "12 Jun 2026",
+        "action": "Created by R. K. Patel"
+      },
+      {
+        "date": "02 Aug 2026",
+        "action": "Boundary edited"
+      },
+      {
+        "date": "14 Sep 2026",
+        "action": "Inspector assigned"
+      }
+    ]
+  },
+  {
+    "id": "W13",
+    "name": "Ward 13 - Dahod Road",
+    "nameGu": "વોર્ડ 13 - દાહોદ રોડ",
+    "code": "GD-W13",
+    "type": "urban",
+    "center": {
+      "lat": 22.76,
+      "lng": 73.628
+    },
+    "radiusM": 560,
+    "routeId": "RT-GDR-04",
+    "inspectorId": "STF-INS-02",
+    "escalationTo": "STF-CO-01",
+    "areaKm2": 0.99,
+    "pointsCount": 6,
+    "polygon": [
+      [
+        22.760099,
+        73.633611
+      ],
+      [
+        22.764778,
+        73.631292
+      ],
+      [
+        22.763687,
+        73.625322
+      ],
+      [
+        22.760521,
+        73.621842
+      ],
+      [
+        22.755393,
+        73.625828
+      ],
+      [
+        22.75507,
+        73.630206
+      ]
+    ],
+    "createdDate": "12 Jun 2026",
+    "createdBy": "Shri R. K. Patel",
+    "history": [
+      {
+        "date": "12 Jun 2026",
+        "action": "Created by R. K. Patel"
+      },
+      {
+        "date": "02 Aug 2026",
+        "action": "Boundary edited"
+      },
+      {
+        "date": "14 Sep 2026",
+        "action": "Inspector assigned"
+      }
+    ]
+  },
+  {
+    "id": "W14",
+    "name": "Ward 14 - Shehra Road",
+    "nameGu": "વોર્ડ 14 - શેરા રોડ",
+    "code": "GD-W14",
+    "type": "rural",
+    "center": {
+      "lat": 22.79,
+      "lng": 73.618
+    },
+    "radiusM": 640,
+    "routeId": "RT-GDR-05",
+    "inspectorId": "STF-INS-02",
+    "escalationTo": "STF-CO-01",
+    "areaKm2": 1.29,
+    "pointsCount": 6,
+    "polygon": [
+      [
+        22.789454,
+        73.6237
+      ],
+      [
+        22.795942,
+        73.62104
+      ],
+      [
+        22.794947,
+        73.615314
+      ],
+      [
+        22.789792,
+        73.611252
+      ],
+      [
+        22.784599,
+        73.614568
+      ],
+      [
+        22.785181,
+        73.620886
+      ]
+    ],
+    "createdDate": "12 Jun 2026",
+    "createdBy": "Shri R. K. Patel",
+    "history": [
+      {
+        "date": "12 Jun 2026",
+        "action": "Created by R. K. Patel"
+      },
+      {
+        "date": "02 Aug 2026",
+        "action": "Boundary edited"
+      },
+      {
+        "date": "14 Sep 2026",
+        "action": "Inspector assigned"
+      }
+    ]
+  },
+  {
+    "id": "W15",
+    "name": "Ward 15 - Halol Road",
+    "nameGu": "વોર્ડ 15 - હાલોલ રોડ",
+    "code": "GD-W15",
+    "type": "rural",
+    "center": {
+      "lat": 22.766,
+      "lng": 73.605
+    },
+    "radiusM": 610,
+    "routeId": "RT-GDR-05",
+    "inspectorId": "STF-INS-02",
+    "escalationTo": "STF-CO-01",
+    "areaKm2": 1.17,
+    "pointsCount": 7,
+    "polygon": [
+      [
+        22.765119,
+        73.610393
+      ],
+      [
+        22.771313,
+        73.608184
+      ],
+      [
+        22.771818,
+        73.604567
+      ],
+      [
+        22.76765,
+        73.599387
+      ],
+      [
+        22.76401,
+        73.59861
+      ],
+      [
+        22.761168,
+        73.604371
+      ],
+      [
+        22.76088,
+        73.608707
+      ]
+    ],
+    "createdDate": "12 Jun 2026",
+    "createdBy": "Shri R. K. Patel",
+    "history": [
+      {
+        "date": "12 Jun 2026",
+        "action": "Created by R. K. Patel"
+      },
+      {
+        "date": "02 Aug 2026",
+        "action": "Boundary edited"
+      },
+      {
+        "date": "14 Sep 2026",
+        "action": "Inspector assigned"
+      }
+    ]
+  },
+  {
+    "id": "W16",
+    "name": "Ward 16 - Kalol Road",
+    "nameGu": "વોર્ડ 16 - કાલોલ રોડ",
+    "code": "GD-W16",
+    "type": "rural",
+    "center": {
+      "lat": 22.788,
+      "lng": 73.63
+    },
+    "radiusM": 590,
+    "routeId": "RT-GDR-06",
+    "inspectorId": "STF-INS-02",
+    "escalationTo": "STF-CO-01",
+    "areaKm2": 1.09,
+    "pointsCount": 6,
+    "polygon": [
+      [
+        22.787125,
+        73.635848
+      ],
+      [
+        22.793114,
+        73.632038
+      ],
+      [
+        22.793623,
+        73.627804
+      ],
+      [
+        22.787168,
+        73.625052
+      ],
+      [
+        22.783403,
+        73.625793
+      ],
+      [
+        22.783928,
+        73.633696
+      ]
+    ],
+    "createdDate": "12 Jun 2026",
+    "createdBy": "Shri R. K. Patel",
+    "history": [
+      {
+        "date": "12 Jun 2026",
+        "action": "Created by R. K. Patel"
+      },
+      {
+        "date": "02 Aug 2026",
+        "action": "Boundary edited"
+      },
+      {
+        "date": "14 Sep 2026",
+        "action": "Inspector assigned"
+      }
+    ]
   }
 ];
 
-export const SEED_DRIVERS: Driver[] = [
-  {
-    id: 'drv_ramesh',
-    driverId: 'GJ-0042',
-    name: 'Ramesh Bhai',
-    phone: '+91 98251 04200',
-    dob: '14 Mar 1989',
-    address: 'Panam Road, Godhra',
-    emergencyContact: {
-      name: 'Kanta Ben',
-      phone: '+91 98251 08800'
-    },
-    licenceNumber: 'GJ17 2019 0045123',
-    licenceClass: 'LMV (Transport)',
-    licenceIssued: '10 Jan 2019',
-    licenceValidUntil: 'Dec 2028',
-    vanId: 'van_1',
-    vanPlate: 'GJ-17-AB-1234',
-    wardIds: ['ward_4', 'ward_5', 'ward_6'],
-    shiftStart: '07:30 AM',
-    shiftEnd: '02:30 PM',
-    status: 'on_shift',
-    shiftProgressPct: 78,
-    photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-    joinedDate: '12 Jun 2024',
-    oneTimePin: '4827',
-    recentShifts: [
-      { date: 'Today', vanPlate: 'GJ-17-AB-1234', started: '07:28', ended: 'In progress', wardsDone: '5 of 9', status: 'on_time' },
-      { date: 'Yesterday', vanPlate: 'GJ-17-AB-1234', started: '07:31', ended: '14:12', wardsDone: '9 of 9', status: 'on_time' },
-      { date: '27 Oct', vanPlate: 'GJ-17-AB-1234', started: '07:55', ended: '14:20', wardsDone: '9 of 9', status: 'late', lateMinutes: 25 },
-      { date: '26 Oct', vanPlate: 'GJ-17-AB-1234', started: '07:29', ended: '14:02', wardsDone: '8 of 9', status: 'on_time' },
-    ]
-  },
-  {
-    id: 'drv_suresh',
-    driverId: 'GJ-0043',
-    name: 'Suresh Vaja',
-    phone: '+91 98251 04300',
-    dob: '22 Aug 1991',
-    address: 'Vavdi Road, Godhra',
-    emergencyContact: {
-      name: 'Bhavna Vaja',
-      phone: '+91 98251 07700'
-    },
-    licenceNumber: 'GJ17 2020 0055214',
-    licenceClass: 'LMV (Transport)',
-    licenceIssued: '15 Feb 2020',
-    licenceValidUntil: 'Jun 2027',
-    vanId: 'van_2',
-    vanPlate: 'GJ-17-AB-1301',
-    wardIds: ['ward_5'],
-    shiftStart: '07:30 AM',
-    shiftEnd: '02:30 PM',
-    status: 'late',
-    lateMinutes: 12,
-    shiftProgressPct: 33,
-    photoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
-    joinedDate: '15 Jan 2025',
-    recentShifts: [
-      { date: 'Today', vanPlate: 'GJ-17-AB-1301', started: '07:42', ended: 'In progress', wardsDone: '3 of 9', status: 'late', lateMinutes: 12 },
-      { date: 'Yesterday', vanPlate: 'GJ-17-AB-1301', started: '07:29', ended: '14:10', wardsDone: '9 of 9', status: 'on_time' }
-    ]
-  },
-  {
-    id: 'drv_dilip',
-    driverId: 'GJ-0044',
-    name: 'Dilip Rana',
-    phone: '+91 98251 04400',
-    dob: '05 Nov 1988',
-    address: 'Near Civil Station, Godhra',
-    emergencyContact: {
-      name: 'Geeta Rana',
-      phone: '+91 98251 06600'
-    },
-    licenceNumber: 'GJ17 2019 0045123',
-    licenceClass: 'LMV (Transport)',
-    licenceIssued: '02 Nov 2019',
-    licenceValidUntil: 'Nov 2026', // expires in 21 days
-    vanId: 'van_3',
-    vanPlate: 'GJ-17-CD-2210',
-    wardIds: ['ward_6'],
-    shiftStart: '07:30 AM',
-    shiftEnd: '02:30 PM',
-    status: 'on_shift',
-    shiftProgressPct: 56,
-    photoUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80',
-    joinedDate: '10 Aug 2023',
-    recentShifts: [
-      { date: 'Today', vanPlate: 'GJ-17-CD-2210', started: '07:33', ended: 'In progress', wardsDone: '6 of 9', status: 'on_time' },
-    ]
-  },
-  {
-    id: 'drv_anil',
-    driverId: 'GJ-0045',
-    name: 'Anil Chauhan',
-    phone: '+91 98251 04500',
-    dob: '18 Jul 1993',
-    address: 'Station Colony, Godhra',
-    emergencyContact: {
-      name: 'Sunil Chauhan',
-      phone: '+91 98251 05500'
-    },
-    licenceNumber: 'GJ17 2021 0078129',
-    licenceClass: 'LMV (Transport)',
-    licenceIssued: '12 Aug 2021',
-    licenceValidUntil: 'Aug 2029',
-    vanId: 'van_5',
-    vanPlate: 'GJ-17-EF-3001',
-    wardIds: ['ward_7'],
-    shiftStart: '07:30 AM',
-    shiftEnd: '02:30 PM',
-    status: 'on_shift',
-    shiftProgressPct: 89,
-    photoUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80',
-    joinedDate: '01 Mar 2024',
-    recentShifts: [
-      { date: 'Today', vanPlate: 'GJ-17-EF-3001', started: '07:25', ended: 'In progress', wardsDone: '8 of 9', status: 'on_time' }
-    ]
-  },
-  {
-    id: 'drv_kiran',
-    driverId: 'GJ-0046',
-    name: 'Kiran Solanki',
-    phone: '+91 98251 04600',
-    dob: '30 Sep 1995',
-    address: 'Bhamaiya, Godhra',
-    emergencyContact: {
-      name: 'Pravin Solanki',
-      phone: '+91 98251 04400'
-    },
-    licenceNumber: 'GJ17 2022 0098432',
-    licenceClass: 'LMV (Transport)',
-    licenceIssued: '10 Mar 2022',
-    licenceValidUntil: 'Mar 2028',
-    wardIds: [],
-    shiftStart: '07:30 AM',
-    shiftEnd: '02:30 PM',
-    status: 'off_duty',
-    shiftProgressPct: 0,
-    photoUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80',
-    joinedDate: '10 Oct 2025',
-  },
-  {
-    id: 'drv_bharat',
-    driverId: 'GJ-0047',
-    name: 'Bharat Patel',
-    phone: '+91 98251 04700',
-    dob: '12 Jan 1987',
-    address: 'Bamroli Road, Godhra',
-    emergencyContact: {
-      name: 'Mina Patel',
-      phone: '+91 98251 03300'
-    },
-    licenceNumber: 'GJ17 2018 0032910',
-    licenceClass: 'LMV (Transport)',
-    licenceIssued: '05 Feb 2018',
-    licenceValidUntil: 'Feb 2027',
-    vanId: 'van_4',
-    vanPlate: 'GJ-17-CD-2255',
-    wardIds: ['ward_8'],
-    shiftStart: '07:30 AM',
-    shiftEnd: '02:30 PM',
-    status: 'suspended',
-    shiftProgressPct: 22,
-    photoUrl: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150&auto=format&fit=crop&q=80',
-    joinedDate: '05 Jan 2024'
-  },
-  {
-    id: 'drv_hitesh',
-    driverId: 'GJ-0049',
-    name: 'Hitesh Rana',
-    phone: '+91 98251 04900',
-    dob: '02 Feb 1994',
-    address: 'Lalbagh, Godhra',
-    emergencyContact: { name: 'Raju Rana', phone: '+91 98251 02200' },
-    licenceNumber: 'GJ17 2023 0089123',
-    licenceClass: 'LMV (Transport)',
-    licenceIssued: '15 Jan 2023',
-    licenceValidUntil: 'Jan 2030',
-    wardIds: [],
-    shiftStart: '07:30 AM',
-    shiftEnd: '02:30 PM',
-    status: 'off_duty',
-    shiftProgressPct: 0,
-    photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-    joinedDate: '01 Jun 2025'
-  },
-  {
-    id: 'drv_naresh',
-    driverId: 'GJ-0050',
-    name: 'Naresh Vaja',
-    phone: '+91 98251 05000',
-    dob: '19 Dec 1992',
-    address: 'Chikli, Godhra',
-    emergencyContact: { name: 'Kailash Vaja', phone: '+91 98251 01100' },
-    licenceNumber: 'GJ17 2022 0076543',
-    licenceClass: 'LMV (Transport)',
-    licenceIssued: '10 Nov 2022',
-    licenceValidUntil: 'Nov 2029',
-    wardIds: [],
-    shiftStart: '07:30 AM',
-    shiftEnd: '02:30 PM',
-    status: 'off_duty',
-    shiftProgressPct: 0,
-    photoUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80',
-    joinedDate: '15 Aug 2025'
-  }
-];
-
+// 2. ROUTES (6 Routes RT-GDR-01..06)
 export const SEED_ROUTES: Route[] = [
   {
-    id: 'route_east',
-    name: 'East route',
-    wardIds: ['ward_4', 'ward_5', 'ward_6', 'ward_7'],
-    scheduledStartTime: '07:30 AM',
-    vanPlate: 'GJ-17-AB-1234',
-    totalDistanceKm: 6.6,
-    estimatedDuration: 'About 3 h 20 min'
+    "id": "RT-GDR-01",
+    "name": "Morning North",
+    "wardIds": [
+      "W01",
+      "W02",
+      "W03",
+      "W04"
+    ],
+    "scheduledStartTime": "07:00",
+    "vanPlate": "GJ-17-GV-2401",
+    "totalDistanceKm": 2.8,
+    "estimatedDuration": "0 h 59 min"
   },
   {
-    id: 'route_west',
-    name: 'West route',
-    wardIds: ['ward_8', 'ward_6'],
-    scheduledStartTime: '08:00 AM',
-    vanPlate: 'GJ-17-CD-2210',
-    totalDistanceKm: 5.2,
-    estimatedDuration: 'About 2 h 45 min'
+    "id": "RT-GDR-02",
+    "name": "Morning Central",
+    "wardIds": [
+      "W05",
+      "W06",
+      "W07"
+    ],
+    "scheduledStartTime": "07:30",
+    "vanPlate": "GJ-17-GV-2402",
+    "totalDistanceKm": 2.2,
+    "estimatedDuration": "0 h 45 min"
   },
   {
-    id: 'route_north',
-    name: 'North route',
-    wardIds: ['ward_9', 'ward_4'],
-    scheduledStartTime: '07:00 AM',
-    vanPlate: 'GJ-17-EF-3001',
-    totalDistanceKm: 7.1,
-    estimatedDuration: 'About 3 h 40 min'
+    "id": "RT-GDR-03",
+    "name": "Morning East",
+    "wardIds": [
+      "W08",
+      "W09",
+      "W10"
+    ],
+    "scheduledStartTime": "08:00",
+    "vanPlate": "GJ-17-GV-2403",
+    "totalDistanceKm": 2.9,
+    "estimatedDuration": "0 h 48 min"
+  },
+  {
+    "id": "RT-GDR-04",
+    "name": "Morning South",
+    "wardIds": [
+      "W11",
+      "W12",
+      "W13"
+    ],
+    "scheduledStartTime": "08:30",
+    "vanPlate": "GJ-17-GV-2404",
+    "totalDistanceKm": 2.4,
+    "estimatedDuration": "0 h 46 min"
+  },
+  {
+    "id": "RT-GDR-05",
+    "name": "Outer North",
+    "wardIds": [
+      "W14",
+      "W15"
+    ],
+    "scheduledStartTime": "09:00",
+    "vanPlate": "GJ-17-GV-2405",
+    "totalDistanceKm": 3,
+    "estimatedDuration": "0 h 36 min"
+  },
+  {
+    "id": "RT-GDR-06",
+    "name": "Outer East",
+    "wardIds": [
+      "W16"
+    ],
+    "scheduledStartTime": "09:30",
+    "vanPlate": "GJ-17-GV-2406",
+    "totalDistanceKm": 0,
+    "estimatedDuration": "0 h 12 min"
   }
 ];
 
+// 3. VANS (6 Vans VAN-01..06)
 export const SEED_VANS: Van[] = [
   {
-    id: 'van_1',
-    plateNo: 'GJ-17-AB-1234',
-    routeId: 'route_east',
-    status: 'on_shift',
+    id: "VAN-01",
+    plateNo: "GJ-17-GV-2401",
+    routeId: "RT-GDR-01",
+    status: "on_shift",
     lastLocation: {
-      lat: 22.7785,
-      lng: 73.6182,
-      updatedAt: new Date(Date.now() - 8000).toISOString(),
-      speedKmph: 18.0
+      lat: 22.7772,
+      lng: 73.6135,
+      speedKmph: 18,
+      updatedAt: minutesAgo(1)
     },
-    batteryPct: 76,
-    type: 'Tata Ace',
-    capacity: '750 kg',
-    driverId: 'drv_ramesh',
-    driverName: 'Ramesh Bhai',
-    insuranceExpiry: 'Mar 2027',
-    pucExpiry: 'Jan 2027'
+    batteryPct: 78,
+    type: "Tata Ace",
+    capacity: "750 kg",
+    driverId: "DR-1001",
+    driverName: "Rameshbhai B. Solanki",
+    insuranceExpiry: "2027-03-31",
+    pucExpiry: "2026-11-13",
+    currentTripId: "TRIP-20261103-01"
   },
   {
-    id: 'van_2',
-    plateNo: 'GJ-17-AB-1301',
-    routeId: 'route_east',
-    status: 'on_shift',
-    lastLocation: {
-      lat: 22.7760,
-      lng: 73.6150,
-      updatedAt: new Date(Date.now() - 15000).toISOString(),
-      speedKmph: 14.2
-    },
-    batteryPct: 82,
-    type: 'Tata Ace',
-    capacity: '750 kg',
-    driverId: 'drv_suresh',
-    driverName: 'Suresh Vaja',
-    insuranceExpiry: 'Dec 2026',
-    pucExpiry: 'Feb 2027'
-  },
-  {
-    id: 'van_3',
-    plateNo: 'GJ-17-CD-2210',
-    routeId: 'route_west',
-    status: 'offline', // GPS offline 11 min
-    lastLocation: {
-      lat: 22.7665,
-      lng: 73.6190,
-      updatedAt: new Date(Date.now() - 11 * 60 * 1000).toISOString(),
-      speedKmph: 0
-    },
-    batteryPct: 45,
-    type: 'Mahindra Jeeto',
-    capacity: '700 kg',
-    driverId: 'drv_dilip',
-    driverName: 'Dilip Rana',
-    insuranceExpiry: 'Aug 2027',
-    pucExpiry: 'Nov 2026' // Expiring soon
-  },
-  {
-    id: 'van_4',
-    plateNo: 'GJ-17-CD-2255',
-    routeId: 'route_west',
-    status: 'idle',
-    lastLocation: {
-      lat: 22.7590,
-      lng: 73.6160,
-      updatedAt: new Date(Date.now() - 45000).toISOString(),
-      speedKmph: 0
-    },
-    batteryPct: 91,
-    type: 'Tata Ace',
-    capacity: '750 kg',
-    driverId: undefined,
-    driverName: 'Unassigned',
-    insuranceExpiry: 'Jun 2027',
-    pucExpiry: 'Oct 2027'
-  },
-  {
-    id: 'van_5',
-    plateNo: 'GJ-17-EF-3001',
-    routeId: 'route_north',
-    status: 'on_shift',
+    id: "VAN-02",
+    plateNo: "GJ-17-GV-2402",
+    routeId: "RT-GDR-02",
+    status: "on_shift",
     lastLocation: {
       lat: 22.7725,
-      lng: 73.6265,
-      updatedAt: new Date(Date.now() - 12000).toISOString(),
-      speedKmph: 22.4
+      lng: 73.6205,
+      speedKmph: 12,
+      updatedAt: minutesAgo(2)
     },
-    batteryPct: 68,
-    type: 'Tata Ace',
-    capacity: '750 kg',
-    driverId: 'drv_anil',
-    driverName: 'Anil Chauhan',
-    insuranceExpiry: 'May 2027',
-    pucExpiry: 'Sep 2027'
+    batteryPct: 64,
+    type: "Mahindra Jeeto",
+    capacity: "700 kg",
+    driverId: "DR-1002",
+    driverName: "Kiranbhai J. Patel",
+    insuranceExpiry: "2027-06-30",
+    pucExpiry: "2027-01-20",
+    currentTripId: "TRIP-20261103-02"
+  },
+  {
+    id: "VAN-03",
+    plateNo: "GJ-17-GV-2403",
+    routeId: "RT-GDR-03",
+    status: "on_shift",
+    lastLocation: {
+      lat: 22.7698,
+      lng: 73.6225,
+      speedKmph: 22,
+      updatedAt: minutesAgo(1)
+    },
+    batteryPct: 91,
+    type: "Tata Ace",
+    capacity: "750 kg",
+    driverId: "DR-1003",
+    driverName: "Mehulbhai R. Chauhan",
+    insuranceExpiry: "2026-12-15",
+    pucExpiry: "2027-02-28",
+    currentTripId: "TRIP-20261103-03"
+  },
+  {
+    id: "VAN-04",
+    plateNo: "GJ-17-GV-2404",
+    routeId: "RT-GDR-04",
+    status: "on_shift",
+    lastLocation: {
+      lat: 22.7708,
+      lng: 73.6355,
+      speedKmph: 9,
+      updatedAt: minutesAgo(3)
+    },
+    batteryPct: 12,
+    type: "Ashok Leyland Dost",
+    capacity: "1250 kg",
+    driverId: "DR-1004",
+    driverName: "Sanjaybhai K. Parmar",
+    insuranceExpiry: "2027-08-31",
+    pucExpiry: "2026-12-05",
+    currentTripId: "TRIP-20261103-04"
+  },
+  {
+    id: "VAN-05",
+    plateNo: "GJ-17-GV-2405",
+    routeId: "RT-GDR-05",
+    status: "idle",
+    lastLocation: {
+      lat: 22.7768,
+      lng: 73.615,
+      speedKmph: 0,
+      updatedAt: minutesAgo(25)
+    },
+    batteryPct: 88,
+    type: "Mahindra Jeeto",
+    capacity: "700 kg",
+    driverId: "DR-1005",
+    driverName: "Dineshbhai S. Rathod",
+    insuranceExpiry: "2027-01-31",
+    pucExpiry: "2027-04-18"
+  },
+  {
+    id: "VAN-06",
+    plateNo: "GJ-17-GV-2406",
+    routeId: "RT-GDR-06",
+    status: "offline",
+    lastLocation: {
+      lat: 22.7872,
+      lng: 73.6295,
+      speedKmph: 0,
+      updatedAt: minutesAgo(42)
+    },
+    batteryPct: 41,
+    type: "Tata Intra",
+    capacity: "1000 kg",
+    driverId: "DR-1006",
+    driverName: "Alpeshbhai V. Baria",
+    insuranceExpiry: "2026-11-30",
+    pucExpiry: "2027-03-09",
+    currentTripId: "TRIP-20261103-06"
   }
 ];
 
+// 4. DRIVERS (6 Drivers DR-1001..1006)
+export const SEED_DRIVERS: Driver[] = [
+  {
+    id: "DR-1001",
+    driverId: "DR-1001",
+    name: "Rameshbhai B. Solanki",
+    phone: "9825043241",
+    dob: "1986-04-12",
+    address: "22, Vohrawad, Godhra, Panchmahal 389001",
+    emergencyContact: {"name":"Nileshbhai Solanki","phone":"9825043277"},
+    licenceNumber: "GJ1720150001234",
+    licenceClass: "LMV",
+    licenceIssued: "2015-06-18",
+    licenceValidUntil: "2027-06-17",
+    vanId: "VAN-01",
+    vanPlate: "GJ-17-GV-2401",
+    wardIds: ["W01","W02","W03","W04"],
+    shiftStart: "07:00",
+    shiftEnd: "12:00",
+    status: "on_shift",
+    lateMinutes: 0,
+    shiftProgressPct: 50,
+    photoUrl: "drivers/DR-1001/photo.jpg",
+    joinedDate: "2024-06-01",
+    oneTimePin: "4001",
+    licencePhotoUrl: "drivers/DR-1001/licence.jpg",
+    recentShifts: [
+      {
+        date: daysAgoStr(1),
+        vanPlate: "GJ-17-GV-2401",
+        started: "07:03",
+        ended: "11:12",
+        wardsDone: "4 of 4",
+        status: "on_time"
+      },
+      {
+        date: daysAgoStr(2),
+        vanPlate: "GJ-17-GV-2401",
+        started: "07:10",
+        ended: "11:05",
+        wardsDone: "4 of 4",
+        status: "on_time"
+      },
+      {
+        date: daysAgoStr(3),
+        vanPlate: "GJ-17-GV-2401",
+        started: "07:02",
+        ended: "10:58",
+        wardsDone: "4 of 4",
+        status: "on_time"
+      },
+      {
+        date: daysAgoStr(4),
+        vanPlate: "GJ-17-GV-2401",
+        started: "07:05",
+        ended: "11:20",
+        wardsDone: "4 of 4",
+        status: "on_time"
+      },
+      {
+        date: daysAgoStr(5),
+        vanPlate: "GJ-17-GV-2401",
+        started: "07:00",
+        ended: "11:02",
+        wardsDone: "4 of 4",
+        status: "on_time"
+      }
+    ]
+  },
+  {
+    id: "DR-1002",
+    driverId: "DR-1002",
+    name: "Kiranbhai J. Patel",
+    phone: "9898013227",
+    dob: "1990-11-03",
+    address: "8, Rampura, Godhra, Panchmahal 389001",
+    emergencyContact: {"name":"Jashvantbhai Patel","phone":"9898013219"},
+    licenceNumber: "GJ1720120019876",
+    licenceClass: "LMV",
+    licenceIssued: "2012-02-09",
+    licenceValidUntil: "2028-02-08",
+    vanId: "VAN-02",
+    vanPlate: "GJ-17-GV-2402",
+    wardIds: ["W05","W06","W07"],
+    shiftStart: "07:30",
+    shiftEnd: "12:00",
+    status: "on_shift",
+    lateMinutes: 0,
+    shiftProgressPct: 67,
+    photoUrl: "drivers/DR-1002/photo.jpg",
+    joinedDate: "2024-06-01",
+    oneTimePin: "4002",
+    licencePhotoUrl: "drivers/DR-1002/licence.jpg",
+    recentShifts: [
+
+    ]
+  },
+  {
+    id: "DR-1003",
+    driverId: "DR-1003",
+    name: "Mehulbhai R. Chauhan",
+    phone: "9879512363",
+    dob: "1988-07-25",
+    address: "31, Bhuravav, Godhra, Panchmahal 389001",
+    emergencyContact: {"name":"Rakeshbhai Chauhan","phone":"9879512334"},
+    licenceNumber: "GJ1720100004411",
+    licenceClass: "LMV",
+    licenceIssued: "2010-09-30",
+    licenceValidUntil: "2026-09-29",
+    vanId: "VAN-03",
+    vanPlate: "GJ-17-GV-2403",
+    wardIds: ["W08","W09","W10"],
+    shiftStart: "08:00",
+    shiftEnd: "13:00",
+    status: "on_shift",
+    lateMinutes: 0,
+    shiftProgressPct: 33,
+    photoUrl: "drivers/DR-1003/photo.jpg",
+    joinedDate: "2024-06-01",
+    oneTimePin: "4003",
+    licencePhotoUrl: "drivers/DR-1003/licence.jpg",
+    recentShifts: [
+
+    ]
+  },
+  {
+    id: "DR-1004",
+    driverId: "DR-1004",
+    name: "Sanjaybhai K. Parmar",
+    phone: "9904378215",
+    dob: "1992-01-14",
+    address: "5, GIDC Colony, Godhra, Panchmahal 389001",
+    emergencyContact: {"name":"Kantabhai Parmar","phone":"9904378290"},
+    licenceNumber: "GJ1720180023345",
+    licenceClass: "LMV",
+    licenceIssued: "2018-03-22",
+    licenceValidUntil: "2029-03-21",
+    vanId: "VAN-04",
+    vanPlate: "GJ-17-GV-2404",
+    wardIds: ["W11","W12","W13"],
+    shiftStart: "08:30",
+    shiftEnd: "13:00",
+    status: "on_shift",
+    lateMinutes: 0,
+    shiftProgressPct: 0,
+    photoUrl: "drivers/DR-1004/photo.jpg",
+    joinedDate: "2024-06-01",
+    oneTimePin: "4004",
+    licencePhotoUrl: "drivers/DR-1004/licence.jpg",
+    recentShifts: [
+
+    ]
+  },
+  {
+    id: "DR-1005",
+    driverId: "DR-1005",
+    name: "Dineshbhai S. Rathod",
+    phone: "9726889088",
+    dob: "1984-09-08",
+    address: "17, Shehra Road, Godhra, Panchmahal 389001",
+    emergencyContact: {"name":"Sureshbhai Rathod","phone":"9726889061"},
+    licenceNumber: "GJ1720080007766",
+    licenceClass: "HMV",
+    licenceIssued: "2008-12-01",
+    licenceValidUntil: "2027-11-30",
+    vanId: "VAN-05",
+    vanPlate: "GJ-17-GV-2405",
+    wardIds: ["W14","W15"],
+    shiftStart: "09:00",
+    shiftEnd: "14:00",
+    status: "on_shift",
+    lateMinutes: 0,
+    shiftProgressPct: 0,
+    photoUrl: "drivers/DR-1005/photo.jpg",
+    joinedDate: "2024-06-01",
+    oneTimePin: "4005",
+    licencePhotoUrl: "drivers/DR-1005/licence.jpg",
+    recentShifts: [
+
+    ]
+  },
+  {
+    id: "DR-1006",
+    driverId: "DR-1006",
+    name: "Alpeshbhai V. Baria",
+    phone: "9426093552",
+    dob: "1995-05-19",
+    address: "44, Kalol Road, Godhra, Panchmahal 389001",
+    emergencyContact: {"name":"Vijaybhai Baria","phone":"9426093528"},
+    licenceNumber: "GJ1720200041122",
+    licenceClass: "LMV",
+    licenceIssued: "2020-07-15",
+    licenceValidUntil: "2030-07-14",
+    vanId: "VAN-06",
+    vanPlate: "GJ-17-GV-2406",
+    wardIds: ["W16"],
+    shiftStart: "09:30",
+    shiftEnd: "14:00",
+    status: "on_shift",
+    lateMinutes: 0,
+    shiftProgressPct: 0,
+    photoUrl: "drivers/DR-1006/photo.jpg",
+    joinedDate: "2024-06-01",
+    oneTimePin: "4006",
+    licencePhotoUrl: "drivers/DR-1006/licence.jpg",
+    recentShifts: [
+
+    ]
+  }
+];
+
+// 5. STAFF (5 District & Municipal Staff)
 export const SEED_STAFF: Staff[] = [
   {
-    id: 'staff_ddo',
-    authUid: 'uid_ddo_patel',
-    name: 'Dr. A. Patel',
-    role: 'ddo',
-    wardIds: [],
-    talukaId: 'all',
-    phone: '+91 98xxxx00',
-    email: 'ddo.panchmahal@gujarat.gov.in',
-    jurisdiction: 'Panchmahal District',
-    lastActive: 'Today, 09:45',
+    id: "STF-DDO-01",
+    authUid: "uid_stf-ddo-01",
+    name: "Shri R. K. Patel",
+    role: "ddo",
+    wardIds: ["W01","W02","W03","W04","W05","W06","W07","W08","W09","W10","W11","W12","W13","W14","W15","W16"],
+    talukaId: "PMH",
+    phone: "9925043242",
+    email: "ddo.panchmahal@gujarat.gov.in",
+    jurisdiction: "Panchmahal District",
+    lastActive: "Today, 10:12",
     active: true
   },
   {
-    id: 'staff_co_rakesh',
-    authUid: 'uid_co_rakesh',
-    name: 'Rakesh Shah',
-    role: 'chief_officer',
-    wardIds: ['ward_4', 'ward_5', 'ward_6', 'ward_7', 'ward_8', 'ward_9'],
-    talukaId: 'godhra_urban',
-    phone: '+91 98xxxx01',
-    email: 'co.godhra@gujarat.gov.in',
-    jurisdiction: 'Godhra Nagarpalika (14 wards)',
-    lastActive: 'Today, 09:10',
+    id: "STF-CO-01",
+    authUid: "uid_stf-co-01",
+    name: "Smt. M. J. Desai",
+    role: "chief_officer",
+    wardIds: ["W01","W02","W03","W04","W05","W06","W07","W08","W09","W10","W11","W12","W13","W14","W15","W16"],
+    talukaId: "PMH-GDR",
+    phone: "9898013218",
+    email: "chief.officer.godhra@gujarat.gov.in",
+    jurisdiction: "Godhra Municipality",
+    lastActive: "Today, 10:05",
     active: true
   },
   {
-    id: 'staff_inspector_meena',
-    authUid: 'uid_insp_meena',
-    name: 'Meena Parmar',
-    role: 'inspector',
-    wardIds: ['ward_5', 'ward_6'],
-    talukaId: 'godhra_urban',
-    phone: '+91 98xxxx02',
-    email: 'meena.parmar@gujarat.gov.in',
-    jurisdiction: 'Godhra NP (Ward 5, 6)',
-    lastActive: 'Today, 08:42',
+    id: "STF-INS-01",
+    authUid: "uid_stf-ins-01",
+    name: "Shri A. B. Chauhan",
+    role: "inspector",
+    wardIds: ["W01","W02","W03","W04","W05","W06","W07","W08"],
+    talukaId: "PMH-GDR",
+    phone: "9879512373",
+    email: "inspector.north.godhra@gujarat.gov.in",
+    jurisdiction: "Godhra North",
+    lastActive: "Today, 10:05",
     active: true
   },
   {
-    id: 'staff_inspector_jayesh',
-    authUid: 'uid_insp_jayesh',
-    name: 'Jayesh Solanki',
-    role: 'inspector',
-    wardIds: [],
-    talukaId: 'halol',
-    phone: '+91 98xxxx03',
-    email: 'jayesh.solanki@gujarat.gov.in',
-    jurisdiction: 'Halol NP (Ward 2, 3)',
-    lastActive: 'Yesterday',
+    id: "STF-INS-02",
+    authUid: "uid_stf-ins-02",
+    name: "Smt. P. K. Rathod",
+    role: "inspector",
+    wardIds: ["W09","W10","W11","W12","W13","W14","W15","W16"],
+    talukaId: "PMH-GDR",
+    phone: "9904378209",
+    email: "inspector.south.godhra@gujarat.gov.in",
+    jurisdiction: "Godhra South",
+    lastActive: "Today, 10:05",
     active: true
   },
   {
-    id: 'staff_tdo_kiran',
-    authUid: 'uid_tdo_kiran',
-    name: 'Kiran Patel',
-    role: 'tdo',
-    wardIds: [],
-    talukaId: 'shehera',
-    phone: '+91 98xxxx04',
-    email: 'tdo.shehera@gujarat.gov.in',
-    jurisdiction: 'Shehera Taluka (22 villages)',
-    lastActive: 'Today, 07:55',
-    active: true
-  },
-  {
-    id: 'staff_inspector_hetal',
-    authUid: 'uid_insp_hetal',
-    name: 'Hetal Desai',
-    role: 'inspector',
-    wardIds: [],
-    talukaId: 'kalol',
-    phone: '+91 98xxxx05',
-    email: 'hetal.desai@gujarat.gov.in',
-    jurisdiction: 'Kalol NP (Ward 8)',
-    lastActive: '3 days ago',
-    active: true
-  },
-  {
-    id: 'staff_inspector_mahesh',
-    authUid: 'uid_insp_mahesh',
-    name: 'Mahesh Rana',
-    role: 'inspector',
-    wardIds: ['ward_7'],
-    talukaId: 'godhra_urban',
-    phone: '+91 98xxxx06',
-    email: 'mahesh.rana@gujarat.gov.in',
-    jurisdiction: 'Godhra NP (Ward 7)',
-    lastActive: 'Today, 09:30',
+    id: "STF-TDO-01",
+    authUid: "uid_stf-tdo-01",
+    name: "Shri S. N. Baria",
+    role: "tdo",
+    wardIds: ["W01","W02","W03","W04","W05","W06","W07","W08","W09","W10","W11","W12","W13","W14","W15","W16"],
+    talukaId: "PMH-GDR",
+    phone: "9726889055",
+    email: "tdo.godhra@gujarat.gov.in",
+    jurisdiction: "Godhra Taluka",
+    lastActive: "Today, 10:05",
     active: true
   }
 ];
 
+// 6. COMPLAINTS (18 Complaints with Godhra coordinates)
 export const SEED_COMPLAINTS: Complaint[] = [
-  {
-    id: 'comp_0412',
-    ticketId: 'PMH-20261031-0412',
-    deviceId: 'dev_4f2a',
-    category: 'garbage_dump',
-    photoUrl: 'https://images.unsplash.com/photo-1611284446314-60a58ac0deb9?w=600&auto=format&fit=crop&q=80',
-    location: { lat: 22.7780, lng: 73.6185 },
-    wardId: 'ward_5',
-    createdAt: new Date(Date.now() - 12 * 60 * 1000).toISOString(), // 12 min ago
-    status: 'received',
-    escalationLevel: 0,
-    citizenDeviceId: '4F2A'
-  },
-  {
-    id: 'comp_0398',
-    ticketId: 'PMH-20261031-0398',
-    deviceId: 'dev_9c8b',
-    category: 'open_gutter',
-    photoUrl: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=600&auto=format&fit=crop&q=80',
-    location: { lat: 22.7792, lng: 73.6190 },
-    wardId: 'ward_5',
-    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 h ago
-    status: 'assigned',
-    assignedTo: 'staff_inspector_meena',
-    assignedToName: 'Meena Parmar',
-    escalationLevel: 0,
-    citizenDeviceId: '9C8B',
-    timeline: {
-      receivedAt: 'Today 08:30',
-      assignedAt: 'Today 09:15'
-    }
-  },
-  {
-    id: 'comp_0377',
-    ticketId: 'PMH-20261031-0377',
-    deviceId: 'dev_3b1a',
-    category: 'missed_collection',
-    photoUrl: 'https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=600&auto=format&fit=crop&q=80',
-    location: { lat: 22.7685, lng: 73.6155 },
-    wardId: 'ward_6',
-    createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(), // 5 h ago
-    status: 'assigned',
-    assignedTo: 'staff_inspector_meena',
-    assignedToName: 'Meena Parmar',
-    escalationLevel: 0,
-    citizenDeviceId: '3B1A'
-  },
-  {
-    id: 'comp_0341',
-    ticketId: 'PMH-20261029-0341',
-    deviceId: 'dev_4f2a',
-    category: 'garbage_dump',
-    photoUrl: 'https://images.unsplash.com/photo-1584824486509-112e4181ff6b?w=600&auto=format&fit=crop&q=80',
-    location: { lat: 22.7720, lng: 73.6260 },
-    wardId: 'ward_7',
-    createdAt: new Date(Date.now() - 27 * 60 * 60 * 1000).toISOString(), // 27 h ago
-    status: 'escalated',
-    assignedTo: 'staff_inspector_mahesh',
-    assignedToName: 'Mahesh Rana',
-    escalationLevel: 1, // Escalated L1 to Chief Officer
-    citizenDeviceId: '4F2A',
-    timeline: {
-      receivedAt: 'Yesterday 08:12',
-      assignedAt: 'Yesterday 09:30',
-      escalatedAt: 'Today 09:30, no action in 24 h'
-    }
-  },
-  {
-    id: 'comp_0320',
-    ticketId: 'PMH-20261028-0320',
-    deviceId: 'dev_81ca',
-    category: 'open_gutter',
-    photoUrl: 'https://images.unsplash.com/photo-1528323273322-d81458248d40?w=600&auto=format&fit=crop&q=80',
-    resolvedPhotoUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&auto=format&fit=crop&q=80',
-    location: { lat: 22.7725, lng: 73.6080 },
-    wardId: 'ward_4',
-    createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
-    status: 'resolved',
-    assignedTo: 'staff_inspector_meena',
-    assignedToName: 'Meena Parmar',
-    resolvedAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-    escalationLevel: 0
-  },
-  {
-    id: 'comp_0301',
-    ticketId: 'PMH-20261026-0301',
-    deviceId: 'dev_77bc',
-    category: 'garbage_dump',
-    photoUrl: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=600&auto=format&fit=crop&q=80',
-    resolvedPhotoUrl: 'https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?w=600&auto=format&fit=crop&q=80',
-    location: { lat: 22.7690, lng: 73.6160 },
-    wardId: 'ward_6',
-    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days ago
-    status: 'resolved',
-    assignedTo: 'staff_inspector_meena',
-    assignedToName: 'Meena Parmar',
-    resolvedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    escalationLevel: 0
-  },
-  {
-    id: 'comp_0289',
-    ticketId: 'PMH-20261025-0289',
-    deviceId: 'dev_11aa',
-    category: 'open_gutter',
-    photoUrl: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=600&auto=format&fit=crop&q=80',
-    location: { lat: 22.7745, lng: 73.6110 },
-    wardId: 'ward_4',
-    createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
-    status: 'received',
-    escalationLevel: 0,
-    citizenDeviceId: '11AA'
-  },
-  {
-    id: 'comp_0275',
-    ticketId: 'PMH-20261024-0275',
-    deviceId: 'dev_22bb',
-    category: 'missed_collection',
-    photoUrl: 'https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=600&auto=format&fit=crop&q=80',
-    location: { lat: 22.7815, lng: 73.6195 },
-    wardId: 'ward_5',
-    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-    status: 'assigned',
-    assignedTo: 'staff_inspector_meena',
-    assignedToName: 'Meena Parmar',
-    escalationLevel: 0
-  },
-  {
-    id: 'comp_0260',
-    ticketId: 'PMH-20261023-0260',
-    deviceId: 'dev_33cc',
-    category: 'garbage_dump',
-    photoUrl: 'https://images.unsplash.com/photo-1611284446314-60a58ac0deb9?w=600&auto=format&fit=crop&q=80',
-    location: { lat: 22.7660, lng: 73.6130 },
-    wardId: 'ward_6',
-    createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
-    status: 'escalated',
-    assignedTo: 'staff_inspector_mahesh',
-    assignedToName: 'Mahesh Rana',
-    escalationLevel: 2
-  },
-  {
-    id: 'comp_0245',
-    ticketId: 'PMH-20261021-0245',
-    deviceId: 'dev_44dd',
-    category: 'garbage_dump',
-    photoUrl: 'https://images.unsplash.com/photo-1584824486509-112e4181ff6b?w=600&auto=format&fit=crop&q=80',
-    location: { lat: 22.7730, lng: 73.6270 },
-    wardId: 'ward_7',
-    createdAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
-    status: 'resolved',
-    resolvedPhotoUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&auto=format&fit=crop&q=80',
-    assignedTo: 'staff_inspector_kiran',
-    assignedToName: 'Kiran Rathod',
-    escalationLevel: 0
-  },
-  {
-    id: 'comp_0230',
-    ticketId: 'PMH-20261019-0230',
-    deviceId: 'dev_55ee',
-    category: 'open_gutter',
-    photoUrl: 'https://images.unsplash.com/photo-1528323273322-d81458248d40?w=600&auto=format&fit=crop&q=80',
-    location: { lat: 22.7785, lng: 73.6175 },
-    wardId: 'ward_5',
-    createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-    status: 'received',
-    escalationLevel: 0
-  },
-  {
-    id: 'comp_0215',
-    ticketId: 'PMH-20261017-0215',
-    deviceId: 'dev_66ff',
-    category: 'missed_collection',
-    photoUrl: 'https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=600&auto=format&fit=crop&q=80',
-    location: { lat: 22.7710, lng: 73.6060 },
-    wardId: 'ward_4',
-    createdAt: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
-    status: 'assigned',
-    assignedTo: 'staff_inspector_meena',
-    assignedToName: 'Meena Parmar',
-    escalationLevel: 0
-  },
-  {
-    id: 'comp_0202',
-    ticketId: 'PMH-20261015-0202',
-    deviceId: 'dev_77gg',
-    category: 'garbage_dump',
-    photoUrl: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=600&auto=format&fit=crop&q=80',
-    location: { lat: 22.7675, lng: 73.6145 },
-    wardId: 'ward_6',
-    createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-    status: 'resolved',
-    resolvedPhotoUrl: 'https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?w=600&auto=format&fit=crop&q=80',
-    assignedTo: 'staff_inspector_meena',
-    assignedToName: 'Meena Parmar',
-    escalationLevel: 0
-  },
-  {
-    id: 'comp_0190',
-    ticketId: 'PMH-20261013-0190',
-    deviceId: 'dev_88hh',
-    category: 'open_gutter',
-    photoUrl: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=600&auto=format&fit=crop&q=80',
-    location: { lat: 22.7750, lng: 73.6210 },
-    wardId: 'ward_7',
-    createdAt: new Date(Date.now() - 16 * 24 * 60 * 60 * 1000).toISOString(),
-    status: 'escalated',
-    assignedTo: 'staff_inspector_mahesh',
-    assignedToName: 'Mahesh Rana',
-    escalationLevel: 1
-  },
-  {
-    id: 'comp_0178',
-    ticketId: 'PMH-20261011-0178',
-    deviceId: 'dev_99ii',
-    category: 'garbage_dump',
-    photoUrl: 'https://images.unsplash.com/photo-1611284446314-60a58ac0deb9?w=600&auto=format&fit=crop&q=80',
-    location: { lat: 22.7800, lng: 73.6160 },
-    wardId: 'ward_5',
-    createdAt: new Date(Date.now() - 18 * 24 * 60 * 60 * 1000).toISOString(),
-    status: 'resolved',
-    resolvedPhotoUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&auto=format&fit=crop&q=80',
-    assignedTo: 'staff_inspector_meena',
-    assignedToName: 'Meena Parmar',
-    escalationLevel: 0
-  },
-  {
-    id: 'comp_0165',
-    ticketId: 'PMH-20261009-0165',
-    deviceId: 'dev_00jj',
-    category: 'missed_collection',
-    photoUrl: 'https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=600&auto=format&fit=crop&q=80',
-    location: { lat: 22.7735, lng: 73.6095 },
-    wardId: 'ward_4',
-    createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
-    status: 'received',
-    escalationLevel: 0
-  },
-  {
-    id: 'comp_0150',
-    ticketId: 'PMH-20261007-0150',
-    deviceId: 'dev_12kk',
-    category: 'garbage_dump',
-    photoUrl: 'https://images.unsplash.com/photo-1584824486509-112e4181ff6b?w=600&auto=format&fit=crop&q=80',
-    location: { lat: 22.7695, lng: 73.6180 },
-    wardId: 'ward_6',
-    createdAt: new Date(Date.now() - 22 * 24 * 60 * 60 * 1000).toISOString(),
-    status: 'resolved',
-    resolvedPhotoUrl: 'https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?w=600&auto=format&fit=crop&q=80',
-    assignedTo: 'staff_inspector_meena',
-    assignedToName: 'Meena Parmar',
-    escalationLevel: 0
-  },
-  {
-    id: 'comp_0135',
-    ticketId: 'PMH-20261005-0135',
-    deviceId: 'dev_34ll',
-    category: 'open_gutter',
-    photoUrl: 'https://images.unsplash.com/photo-1528323273322-d81458248d40?w=600&auto=format&fit=crop&q=80',
-    location: { lat: 22.7765, lng: 73.6245 },
-    wardId: 'ward_7',
-    createdAt: new Date(Date.now() - 24 * 24 * 60 * 60 * 1000).toISOString(),
-    status: 'resolved',
-    resolvedPhotoUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&auto=format&fit=crop&q=80',
-    assignedTo: 'staff_inspector_kiran',
-    assignedToName: 'Kiran Rathod',
-    escalationLevel: 0
-  },
-  {
-    id: 'comp_0120',
-    ticketId: 'PMH-20261003-0120',
-    deviceId: 'dev_56mm',
-    category: 'garbage_dump',
-    photoUrl: 'https://images.unsplash.com/photo-1611284446314-60a58ac0deb9?w=600&auto=format&fit=crop&q=80',
-    location: { lat: 22.7820, lng: 73.6200 },
-    wardId: 'ward_5',
-    createdAt: new Date(Date.now() - 26 * 24 * 60 * 60 * 1000).toISOString(),
-    status: 'resolved',
-    resolvedPhotoUrl: 'https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?w=600&auto=format&fit=crop&q=80',
-    assignedTo: 'staff_inspector_meena',
-    assignedToName: 'Meena Parmar',
-    escalationLevel: 0
-  },
-  {
-    id: 'comp_0105',
-    ticketId: 'PMH-20261001-0105',
-    deviceId: 'dev_78nn',
-    category: 'missed_collection',
-    photoUrl: 'https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=600&auto=format&fit=crop&q=80',
-    location: { lat: 22.7705, lng: 73.6070 },
-    wardId: 'ward_4',
-    createdAt: new Date(Date.now() - 28 * 24 * 60 * 60 * 1000).toISOString(),
-    status: 'resolved',
-    resolvedPhotoUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&auto=format&fit=crop&q=80',
-    assignedTo: 'staff_inspector_meena',
-    assignedToName: 'Meena Parmar',
-    escalationLevel: 0
-  },
-  {
-    id: 'comp_0090',
-    ticketId: 'PMH-20260929-0090',
-    deviceId: 'dev_90oo',
-    category: 'garbage_dump',
-    photoUrl: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=600&auto=format&fit=crop&q=80',
-    location: { lat: 22.7680, lng: 73.6150 },
-    wardId: 'ward_6',
-    createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-    status: 'resolved',
-    resolvedPhotoUrl: 'https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?w=600&auto=format&fit=crop&q=80',
-    assignedTo: 'staff_inspector_meena',
-    assignedToName: 'Meena Parmar',
-    escalationLevel: 0
-  },
-  {
-    id: 'comp_0075',
-    ticketId: 'PMH-20260928-0075',
-    deviceId: 'dev_75pp',
-    category: 'open_gutter',
-    photoUrl: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=600&auto=format&fit=crop&q=80',
-    location: { lat: 22.7715, lng: 73.6120 },
-    wardId: 'ward_4',
-    createdAt: new Date(Date.now() - 29 * 24 * 60 * 60 * 1000).toISOString(),
-    status: 'resolved',
-    resolvedPhotoUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&auto=format&fit=crop&q=80',
-    assignedTo: 'staff_inspector_meena',
-    assignedToName: 'Meena Parmar',
-    escalationLevel: 0
-  }
+  (() => {
+    const createdAt = hoursAgo(2);
+    return {
+      id: "CMP-0001",
+      ticketId: makeTicketId(createdAt, "0001"),
+      deviceId: "DEV-DEMO-0007",
+      category: "garbage_dump",
+      photoUrl: "complaints/CMP-0001/photo.jpg",
+      location: {"lat":22.7793,"lng":73.6237},
+      wardId: "W03",
+      createdAt,
+      status: "received",
+      assignedTo: undefined,
+      assignedToName: undefined,
+      escalationLevel: 0,
+      resolvedPhotoUrl: undefined,
+      resolvedAt: undefined,
+      mergedInto: undefined,
+      note: "Garbage pile behind the Bhadrapura bus stand.",
+      citizenDeviceId: "DEV-DEMO-0007",
+      timeline: {
+        receivedAt: createdAt,
+        assignedAt: undefined,
+        escalatedAt: undefined,
+        resolvedAt: undefined
+      }
+    };
+  })(),
+  (() => {
+    const createdAt = hoursAgo(3.67);
+    return {
+      id: "CMP-0002",
+      ticketId: makeTicketId(createdAt, "0002"),
+      deviceId: "DEV-DEMO-0402",
+      category: "open_gutter",
+      photoUrl: "complaints/CMP-0002/photo.jpg",
+      location: {"lat":22.7744,"lng":73.6185},
+      wardId: "W05",
+      createdAt,
+      status: "assigned",
+      assignedTo: "STF-INS-01",
+      assignedToName: "Shri A. B. Chauhan",
+      escalationLevel: 0,
+      resolvedPhotoUrl: undefined,
+      resolvedAt: undefined,
+      mergedInto: undefined,
+      note: "Open gutter in Navi Pole lane 3.",
+      citizenDeviceId: "DEV-DEMO-0402",
+      timeline: {
+        receivedAt: createdAt,
+        assignedAt: hoursAgo(2.83),
+        escalatedAt: undefined,
+        resolvedAt: undefined
+      }
+    };
+  })(),
+  (() => {
+    const createdAt = hoursAgo(1.17);
+    return {
+      id: "CMP-0003",
+      ticketId: makeTicketId(createdAt, "0003"),
+      deviceId: "DEV-DEMO-0311",
+      category: "missed_collection",
+      photoUrl: "complaints/CMP-0003/photo.jpg",
+      location: {"lat":22.7682,"lng":73.6124},
+      wardId: "W07",
+      createdAt,
+      status: "received",
+      assignedTo: undefined,
+      assignedToName: undefined,
+      escalationLevel: 0,
+      resolvedPhotoUrl: undefined,
+      resolvedAt: undefined,
+      mergedInto: undefined,
+      note: "Van did not reach Lakhana before 09:00.",
+      citizenDeviceId: "DEV-DEMO-0311",
+      timeline: {
+        receivedAt: createdAt,
+        assignedAt: undefined,
+        escalatedAt: undefined,
+        resolvedAt: undefined
+      }
+    };
+  })(),
+  (() => {
+    const createdAt = hoursAgo(23.25);
+    return {
+      id: "CMP-0004",
+      ticketId: makeTicketId(createdAt, "0004"),
+      deviceId: "DEV-DEMO-0518",
+      category: "public_toilet",
+      photoUrl: "complaints/CMP-0004/photo.jpg",
+      location: {"lat":22.7716,"lng":73.6428},
+      wardId: "W11",
+      createdAt,
+      status: "assigned",
+      assignedTo: "STF-INS-02",
+      assignedToName: "Smt. P. K. Rathod",
+      escalationLevel: 0,
+      resolvedPhotoUrl: undefined,
+      resolvedAt: undefined,
+      mergedInto: undefined,
+      note: "Public toilet at GIDC gate 5 is not clean.",
+      citizenDeviceId: "DEV-DEMO-0518",
+      timeline: {
+        receivedAt: createdAt,
+        assignedAt: hoursAgo(22.17),
+        escalatedAt: undefined,
+        resolvedAt: undefined
+      }
+    };
+  })(),
+  (() => {
+    const createdAt = hoursAgo(25.08);
+    return {
+      id: "CMP-0005",
+      ticketId: makeTicketId(createdAt, "0005"),
+      deviceId: "DEV-DEMO-0620",
+      category: "construction_debris",
+      photoUrl: "complaints/CMP-0005/photo.jpg",
+      location: {"lat":22.7703,"lng":73.6306},
+      wardId: "W12",
+      createdAt,
+      status: "resolved",
+      assignedTo: "STF-INS-02",
+      assignedToName: "Smt. P. K. Rathod",
+      escalationLevel: 0,
+      resolvedPhotoUrl: "complaints/CMP-0005/resolved.jpg",
+      resolvedAt: hoursAgo(19),
+      mergedInto: undefined,
+      note: "Debris cleared and dumped at the GIDC yard.",
+      citizenDeviceId: "DEV-DEMO-0620",
+      timeline: {
+        receivedAt: createdAt,
+        assignedAt: hoursAgo(24.67),
+        escalatedAt: undefined,
+        resolvedAt: hoursAgo(19)
+      }
+    };
+  })(),
+  (() => {
+    const createdAt = hoursAgo(17.83);
+    return {
+      id: "CMP-0006",
+      ticketId: makeTicketId(createdAt, "0006"),
+      deviceId: "DEV-DEMO-0712",
+      category: "garbage_dump",
+      photoUrl: "complaints/CMP-0006/photo.jpg",
+      location: {"lat":22.7816,"lng":73.6305},
+      wardId: "W09",
+      createdAt,
+      status: "escalated",
+      assignedTo: "STF-INS-02",
+      assignedToName: "Smt. P. K. Rathod",
+      escalationLevel: 1,
+      resolvedPhotoUrl: undefined,
+      resolvedAt: undefined,
+      mergedInto: undefined,
+      note: "Pile has grown for two days.",
+      citizenDeviceId: "DEV-DEMO-0712",
+      timeline: {
+        receivedAt: createdAt,
+        assignedAt: hoursAgo(17.25),
+        escalatedAt: hoursAgo(-6.17),
+        resolvedAt: undefined
+      }
+    };
+  })(),
+  (() => {
+    const createdAt = hoursAgo(50.5);
+    return {
+      id: "CMP-0007",
+      ticketId: makeTicketId(createdAt, "0007"),
+      deviceId: "DEV-DEMO-0822",
+      category: "dead_animal",
+      photoUrl: "complaints/CMP-0007/photo.jpg",
+      location: {"lat":22.7824,"lng":73.6168},
+      wardId: "W02",
+      createdAt,
+      status: "assigned",
+      assignedTo: "STF-INS-01",
+      assignedToName: "Shri A. B. Chauhan",
+      escalationLevel: 0,
+      resolvedPhotoUrl: undefined,
+      resolvedAt: undefined,
+      mergedInto: undefined,
+      note: "Dead dog near Raipur cross road.",
+      citizenDeviceId: "DEV-DEMO-0822",
+      timeline: {
+        receivedAt: createdAt,
+        assignedAt: hoursAgo(50.08),
+        escalatedAt: undefined,
+        resolvedAt: undefined
+      }
+    };
+  })(),
+  (() => {
+    const createdAt = hoursAgo(48);
+    return {
+      id: "CMP-0008",
+      ticketId: makeTicketId(createdAt, "0008"),
+      deviceId: "DEV-DEMO-0933",
+      category: "hazardous_waste",
+      photoUrl: "complaints/CMP-0008/photo.jpg",
+      location: {"lat":22.7883,"lng":73.6304},
+      wardId: "W16",
+      createdAt,
+      status: "escalated",
+      assignedTo: "STF-INS-02",
+      assignedToName: "Smt. P. K. Rathod",
+      escalationLevel: 2,
+      resolvedPhotoUrl: undefined,
+      resolvedAt: undefined,
+      mergedInto: undefined,
+      note: "Chemical drums dumped near Kalol Road.",
+      citizenDeviceId: "DEV-DEMO-0933",
+      timeline: {
+        receivedAt: createdAt,
+        assignedAt: hoursAgo(47.33),
+        escalatedAt: hoursAgo(0),
+        resolvedAt: undefined
+      }
+    };
+  })(),
+  (() => {
+    const createdAt = hoursAgo(16.25);
+    return {
+      id: "CMP-0009",
+      ticketId: makeTicketId(createdAt, "0009"),
+      deviceId: "DEV-DEMO-0007",
+      category: "missed_collection",
+      photoUrl: "complaints/CMP-0009/photo.jpg",
+      location: {"lat":22.7788,"lng":73.6225},
+      wardId: "W03",
+      createdAt,
+      status: "assigned",
+      assignedTo: "STF-INS-01",
+      assignedToName: "Shri A. B. Chauhan",
+      escalationLevel: 0,
+      resolvedPhotoUrl: undefined,
+      resolvedAt: undefined,
+      mergedInto: undefined,
+      note: "Van skipped Bhadrapura Main Road on the second round.",
+      citizenDeviceId: "DEV-DEMO-0007",
+      timeline: {
+        receivedAt: createdAt,
+        assignedAt: hoursAgo(15.83),
+        escalatedAt: undefined,
+        resolvedAt: undefined
+      }
+    };
+  })(),
+  (() => {
+    const createdAt = hoursAgo(98.17);
+    return {
+      id: "CMP-0010",
+      ticketId: makeTicketId(createdAt, "0010"),
+      deviceId: "DEV-DEMO-1155",
+      category: "garbage_dump",
+      photoUrl: "complaints/CMP-0010/photo.jpg",
+      location: {"lat":22.7848,"lng":73.6103},
+      wardId: "W01",
+      createdAt,
+      status: "resolved",
+      assignedTo: "STF-INS-01",
+      assignedToName: "Shri A. B. Chauhan",
+      escalationLevel: 0,
+      resolvedPhotoUrl: "complaints/CMP-0010/resolved.jpg",
+      resolvedAt: hoursAgo(93.17),
+      mergedInto: undefined,
+      note: "Cleared by the morning van.",
+      citizenDeviceId: "DEV-DEMO-1155",
+      timeline: {
+        receivedAt: createdAt,
+        assignedAt: hoursAgo(97.83),
+        escalatedAt: undefined,
+        resolvedAt: hoursAgo(93.17)
+      }
+    };
+  })(),
+  (() => {
+    const createdAt = hoursAgo(117.75);
+    return {
+      id: "CMP-0011",
+      ticketId: makeTicketId(createdAt, "0011"),
+      deviceId: "DEV-DEMO-1266",
+      category: "open_gutter",
+      photoUrl: "complaints/CMP-0011/photo.jpg",
+      location: {"lat":22.7777,"lng":73.6362},
+      wardId: "W10",
+      createdAt,
+      status: "resolved",
+      assignedTo: "STF-INS-02",
+      assignedToName: "Smt. P. K. Rathod",
+      escalationLevel: 0,
+      resolvedPhotoUrl: "complaints/CMP-0011/resolved.jpg",
+      resolvedAt: hoursAgo(96.33),
+      mergedInto: undefined,
+      note: "Citizen did not respond to the verification request.",
+      citizenDeviceId: "DEV-DEMO-1266",
+      timeline: {
+        receivedAt: createdAt,
+        assignedAt: hoursAgo(117.33),
+        escalatedAt: undefined,
+        resolvedAt: hoursAgo(96.33)
+      }
+    };
+  })(),
+  (() => {
+    const createdAt = hoursAgo(168.92);
+    return {
+      id: "CMP-0012",
+      ticketId: makeTicketId(createdAt, "0012"),
+      deviceId: "DEV-DEMO-0007",
+      category: "other",
+      photoUrl: "complaints/CMP-0012/photo.jpg",
+      location: {"lat":22.7795,"lng":73.6228},
+      wardId: "W03",
+      createdAt,
+      status: "reopened",
+      assignedTo: "STF-INS-01",
+      assignedToName: "Shri A. B. Chauhan",
+      escalationLevel: 0,
+      resolvedPhotoUrl: "complaints/CMP-0012/resolved.jpg",
+      resolvedAt: hoursAgo(140.33),
+      mergedInto: undefined,
+      note: "Sweeping was not done on the lane behind the school.",
+      citizenDeviceId: "DEV-DEMO-0007",
+      timeline: {
+        receivedAt: createdAt,
+        assignedAt: hoursAgo(168.33),
+        escalatedAt: undefined,
+        resolvedAt: hoursAgo(140.33)
+      }
+    };
+  })(),
+  (() => {
+    const createdAt = hoursAgo(218.58);
+    return {
+      id: "CMP-0013",
+      ticketId: makeTicketId(createdAt, "0013"),
+      deviceId: "DEV-DEMO-1488",
+      category: "garbage_dump",
+      photoUrl: "complaints/CMP-0013/photo.jpg",
+      location: {"lat":22.7654,"lng":73.6204},
+      wardId: "W08",
+      createdAt,
+      status: "resolved",
+      assignedTo: "STF-INS-01",
+      assignedToName: "Shri A. B. Chauhan",
+      escalationLevel: 0,
+      resolvedPhotoUrl: "complaints/CMP-0013/resolved.jpg",
+      resolvedAt: hoursAgo(185.83),
+      mergedInto: undefined,
+      note: "Cleared the next day after the second visit.",
+      citizenDeviceId: "DEV-DEMO-1488",
+      timeline: {
+        receivedAt: createdAt,
+        assignedAt: hoursAgo(218.17),
+        escalatedAt: undefined,
+        resolvedAt: hoursAgo(185.83)
+      }
+    };
+  })(),
+  (() => {
+    const createdAt = hoursAgo(360.25);
+    return {
+      id: "CMP-0014",
+      ticketId: makeTicketId(createdAt, "0014"),
+      deviceId: "DEV-DEMO-1599",
+      category: "missed_collection",
+      photoUrl: "complaints/CMP-0014/photo.jpg",
+      location: {"lat":22.7763,"lng":73.6114},
+      wardId: "W04",
+      createdAt,
+      status: "resolved",
+      assignedTo: "STF-INS-01",
+      assignedToName: "Shri A. B. Chauhan",
+      escalationLevel: 0,
+      resolvedPhotoUrl: "complaints/CMP-0014/resolved.jpg",
+      resolvedAt: hoursAgo(352),
+      mergedInto: undefined,
+      note: "Second round completed.",
+      citizenDeviceId: "DEV-DEMO-1599",
+      timeline: {
+        receivedAt: createdAt,
+        assignedAt: hoursAgo(359.83),
+        escalatedAt: undefined,
+        resolvedAt: hoursAgo(352)
+      }
+    };
+  })(),
+  (() => {
+    const createdAt = hoursAgo(597.08);
+    return {
+      id: "CMP-0015",
+      ticketId: makeTicketId(createdAt, "0015"),
+      deviceId: "DEV-DEMO-1610",
+      category: "garbage_dump",
+      photoUrl: "complaints/CMP-0015/photo.jpg",
+      location: {"lat":22.7904,"lng":73.6183},
+      wardId: "W14",
+      createdAt,
+      status: "resolved",
+      assignedTo: "STF-INS-02",
+      assignedToName: "Smt. P. K. Rathod",
+      escalationLevel: 0,
+      resolvedPhotoUrl: "complaints/CMP-0015/resolved.jpg",
+      resolvedAt: hoursAgo(591.25),
+      mergedInto: undefined,
+      note: "Cleared with the evening van.",
+      citizenDeviceId: "DEV-DEMO-1610",
+      timeline: {
+        receivedAt: createdAt,
+        assignedAt: hoursAgo(596.67),
+        escalatedAt: undefined,
+        resolvedAt: hoursAgo(591.25)
+      }
+    };
+  })(),
+  (() => {
+    const createdAt = hoursAgo(0.63);
+    return {
+      id: "CMP-0016",
+      ticketId: makeTicketId(createdAt, "0016"),
+      deviceId: "DEV-DEMO-1731",
+      category: "garbage_dump",
+      photoUrl: "complaints/CMP-0016/photo.jpg",
+      location: {"lat":22.7685,"lng":73.6117},
+      wardId: "W07",
+      createdAt,
+      status: "received",
+      assignedTo: undefined,
+      assignedToName: undefined,
+      escalationLevel: 0,
+      resolvedPhotoUrl: undefined,
+      resolvedAt: undefined,
+      mergedInto: undefined,
+      note: "Second pile reported on the same lane in Lakhana.",
+      citizenDeviceId: "DEV-DEMO-1731",
+      timeline: {
+        receivedAt: createdAt,
+        assignedAt: undefined,
+        escalatedAt: undefined,
+        resolvedAt: undefined
+      }
+    };
+  })(),
+  (() => {
+    const createdAt = hoursAgo(24.83);
+    return {
+      id: "CMP-0017",
+      ticketId: makeTicketId(createdAt, "0017"),
+      deviceId: "DEV-DEMO-0007",
+      category: "open_gutter",
+      photoUrl: "complaints/CMP-0017/photo.jpg",
+      location: {"lat":22.7786,"lng":73.6241},
+      wardId: "W03",
+      createdAt,
+      status: "pending_verification",
+      assignedTo: "STF-INS-01",
+      assignedToName: "Shri A. B. Chauhan",
+      escalationLevel: 0,
+      resolvedPhotoUrl: "complaints/CMP-0017/resolved.jpg",
+      resolvedAt: hoursAgo(2.25),
+      mergedInto: undefined,
+      note: "Gutter covered and disinfected.",
+      citizenDeviceId: "DEV-DEMO-0007",
+      timeline: {
+        receivedAt: createdAt,
+        assignedAt: hoursAgo(24.33),
+        escalatedAt: undefined,
+        resolvedAt: hoursAgo(2.25)
+      }
+    };
+  })(),
+  (() => {
+    const createdAt = hoursAgo(143.08);
+    return {
+      id: "CMP-0018",
+      ticketId: makeTicketId(createdAt, "0018"),
+      deviceId: "DEV-DEMO-0007",
+      category: "garbage_dump",
+      photoUrl: "complaints/CMP-0018/photo.jpg",
+      location: {"lat":22.7798,"lng":73.6219},
+      wardId: "W03",
+      createdAt,
+      status: "resolved",
+      assignedTo: "STF-INS-01",
+      assignedToName: "Shri A. B. Chauhan",
+      escalationLevel: 0,
+      resolvedPhotoUrl: "complaints/CMP-0018/resolved.jpg",
+      resolvedAt: hoursAgo(136.67),
+      mergedInto: undefined,
+      note: "Cleared and the spot was swept.",
+      citizenDeviceId: "DEV-DEMO-0007",
+      timeline: {
+        receivedAt: createdAt,
+        assignedAt: hoursAgo(142.67),
+        escalatedAt: undefined,
+        resolvedAt: hoursAgo(136.67)
+      }
+    };
+  })()
 ];
 
+// 7. ATTENDANCE (6 Attendance Records)
 export const SEED_ATTENDANCE: AttendanceRecord[] = [
   {
-    id: 'att_1',
-    driverId: 'drv_ramesh',
-    driverName: 'Ramesh Bhai',
-    driverCode: 'GJ-0042',
-    vanPlate: 'GJ-17-AB-1234',
-    scheduled: '07:30',
-    started: '07:28',
-    ended: 'In progress',
-    wardsDone: '5 of 9',
-    status: 'on_time',
-    date: 'today',
-    tripId: 'trip_ramesh_today'
+    "id": "ATT-DR-1001",
+    "driverId": "DR-1001",
+    "driverName": "Rameshbhai B. Solanki",
+    "driverCode": "DR-1001",
+    "vanPlate": "GJ-17-GV-2401",
+    "scheduled": "07:00",
+    "started": "07:05",
+    "ended": "--",
+    "wardsDone": "2 of 4",
+    "status": "on_time",
+    "lateMinutes": 0,
+    "date": "today"
   },
   {
-    id: 'att_2',
-    driverId: 'drv_suresh',
-    driverName: 'Suresh Vaja',
-    driverCode: 'GJ-0043',
-    vanPlate: 'GJ-17-AB-1301',
-    scheduled: '07:30',
-    started: 'Not started',
-    ended: '-',
-    wardsDone: '0 of 9',
-    status: 'late',
-    lateMinutes: 12,
-    date: 'today'
+    "id": "ATT-DR-1002",
+    "driverId": "DR-1002",
+    "driverName": "Kiranbhai J. Patel",
+    "driverCode": "DR-1002",
+    "vanPlate": "GJ-17-GV-2402",
+    "scheduled": "07:30",
+    "started": "07:34",
+    "ended": "--",
+    "wardsDone": "2 of 3",
+    "status": "on_time",
+    "lateMinutes": 0,
+    "date": "today"
   },
   {
-    id: 'att_3',
-    driverId: 'drv_dilip',
-    driverName: 'Dilip Rana',
-    driverCode: 'GJ-0044',
-    vanPlate: 'GJ-17-CD-2210',
-    scheduled: '07:30',
-    started: '07:33',
-    ended: 'In progress',
-    wardsDone: '6 of 9',
-    status: 'on_time',
-    date: 'today',
-    tripId: 'trip_dilip_today'
+    "id": "ATT-DR-1003",
+    "driverId": "DR-1003",
+    "driverName": "Mehulbhai R. Chauhan",
+    "driverCode": "DR-1003",
+    "vanPlate": "GJ-17-GV-2403",
+    "scheduled": "08:00",
+    "started": "08:02",
+    "ended": "--",
+    "wardsDone": "1 of 3",
+    "status": "on_time",
+    "lateMinutes": 0,
+    "date": "today"
   },
   {
-    id: 'att_4',
-    driverId: 'drv_anil',
-    driverName: 'Anil Chauhan',
-    driverCode: 'GJ-0045',
-    vanPlate: 'GJ-17-EF-3001',
-    scheduled: '07:30',
-    started: '07:25',
-    ended: 'In progress',
-    wardsDone: '8 of 9',
-    status: 'on_time',
-    date: 'today',
-    tripId: 'trip_anil_today'
+    "id": "ATT-DR-1004",
+    "driverId": "DR-1004",
+    "driverName": "Sanjaybhai K. Parmar",
+    "driverCode": "DR-1004",
+    "vanPlate": "GJ-17-GV-2404",
+    "scheduled": "08:30",
+    "started": "08:33",
+    "ended": "--",
+    "wardsDone": "0 of 3",
+    "status": "on_time",
+    "lateMinutes": 0,
+    "date": "today"
   },
   {
-    id: 'att_5',
-    driverId: 'drv_kiran',
-    driverName: 'Kiran Solanki',
-    driverCode: 'GJ-0046',
-    vanPlate: 'Not allotted',
-    scheduled: '07:30',
-    started: '-',
-    ended: '-',
-    wardsDone: '-',
-    status: 'off_duty',
-    date: 'today'
+    "id": "ATT-DR-1005",
+    "driverId": "DR-1005",
+    "driverName": "Dineshbhai S. Rathod",
+    "driverCode": "DR-1005",
+    "vanPlate": "GJ-17-GV-2405",
+    "scheduled": "09:00",
+    "started": "--",
+    "ended": "--",
+    "wardsDone": "0 of 2",
+    "status": "off_duty",
+    "lateMinutes": 0,
+    "date": "today"
   },
   {
-    id: 'att_6',
-    driverId: 'drv_bharat',
-    driverName: 'Bharat Patel',
-    driverCode: 'GJ-0047',
-    vanPlate: 'GJ-17-CD-2255',
-    scheduled: '07:30',
-    started: '-',
-    ended: '-',
-    wardsDone: '-',
-    status: 'absent',
-    date: 'today'
+    "id": "ATT-DR-1006",
+    "driverId": "DR-1006",
+    "driverName": "Alpeshbhai V. Baria",
+    "driverCode": "DR-1006",
+    "vanPlate": "GJ-17-GV-2406",
+    "scheduled": "09:30",
+    "started": "09:31",
+    "ended": "--",
+    "wardsDone": "0 of 1",
+    "status": "off_duty",
+    "lateMinutes": 0,
+    "date": "today"
   }
 ];
 
+// 8. ALERTS (6 Alerts: 1 critical, 2 warning, 3 info)
 export const SEED_ALERTS: AlertItem[] = [
   {
-    id: 'alt_1',
-    severity: 'critical',
-    title: 'Van GJ-17-CD-2210 offline',
-    detail: 'No signal for 11 min. Driver: Dilip Rana',
-    timeAgo: '9 min ago',
-    timestamp: new Date(Date.now() - 9 * 60 * 1000).toISOString(),
-    driverPhone: '+91 98xxxx44',
-    vanId: 'van_3',
+    id: "ALT-0001",
+    severity: "critical",
+    title: "Van GJ-17-GV-2406 has not sent a location for 42 minutes.",
+    detail: "Van GJ-17-GV-2406 has not sent a location for 42 minutes.",
+    timeAgo: formatAlertTimeAgo(42),
+    timestamp: minutesAgo(42),
+    driverPhone: "9426093552",
+    vanId: "VAN-06",
+    wardId: "W16",
+    complaintId: undefined,
     acknowledged: false
   },
   {
-    id: 'alt_2',
-    severity: 'warning',
-    title: 'Suresh Vaja has not started',
-    detail: 'Scheduled 07:30. 12 min late',
-    timeAgo: '12 min ago',
-    timestamp: new Date(Date.now() - 12 * 60 * 1000).toISOString(),
-    driverPhone: '+91 98xxxx43',
+    id: "ALT-0002",
+    severity: "warning",
+    title: "Ward 7 Lakhana has 4 missed-collection reports today. Threshold is 3.",
+    detail: "Ward 7 Lakhana has 4 missed-collection reports today. Threshold is 3.",
+    timeAgo: formatAlertTimeAgo(25),
+    timestamp: minutesAgo(25),
+    driverPhone: "9898013227",
+    vanId: "VAN-02",
+    wardId: "W07",
+    complaintId: undefined,
     acknowledged: false
   },
   {
-    id: 'alt_3',
-    severity: 'warning',
-    title: 'Licence expires in 21 days',
-    detail: 'Dilip Rana, GJ17 2019 0045123',
-    timeAgo: 'Today',
-    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    driverPhone: '+91 98xxxx44',
+    id: "ALT-0003",
+    severity: "warning",
+    title: "Complaint PMH-20261101-0008 escalated to the DDO at level 2.",
+    detail: "Complaint PMH-20261101-0008 escalated to the DDO at level 2.",
+    timeAgo: formatAlertTimeAgo(20),
+    timestamp: minutesAgo(20),
+    driverPhone: undefined,
+    vanId: undefined,
+    wardId: "W16",
+    complaintId: undefined,
     acknowledged: false
   },
   {
-    id: 'alt_4',
-    severity: 'critical',
-    title: 'Complaint past 48 h',
-    detail: 'PMH-...0341, Ward 7, now level 2',
-    timeAgo: '1 h ago',
-    timestamp: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
-    complaintId: 'comp_0341',
+    id: "ALT-0004",
+    severity: "info",
+    title: "Complaint PMH-20261103-0001 has been unassigned for 2 hours in ward 3.",
+    detail: "Complaint PMH-20261103-0001 has been unassigned for 2 hours in ward 3.",
+    timeAgo: formatAlertTimeAgo(120),
+    timestamp: minutesAgo(120),
+    driverPhone: undefined,
+    vanId: undefined,
+    wardId: "W03",
+    complaintId: undefined,
     acknowledged: false
   },
   {
-    id: 'alt_5',
-    severity: 'info',
-    title: 'Van left its area',
-    detail: 'GJ-17-AB-1301 outside Ward 5 for 6 min',
-    timeAgo: '2 h ago',
-    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    driverPhone: '+91 98xxxx43',
-    vanId: 'van_2',
+    id: "ALT-0005",
+    severity: "info",
+    title: "Van GJ-17-GV-2404 battery is at 12 percent.",
+    detail: "Van GJ-17-GV-2404 battery is at 12 percent.",
+    timeAgo: formatAlertTimeAgo(3),
+    timestamp: minutesAgo(3),
+    driverPhone: "9904378215",
+    vanId: "VAN-04",
+    wardId: "W11",
+    complaintId: undefined,
     acknowledged: true
   },
   {
-    id: 'alt_6',
-    severity: 'warning',
-    title: '3 missed-collection reports',
-    detail: 'Ward 6 today. Inspector notified',
-    timeAgo: '3 h ago',
-    timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-    wardId: 'ward_6',
-    acknowledged: true
-  },
-  {
-    id: 'alt_7',
-    severity: 'info',
-    title: 'Insurance expires in 30 days',
-    detail: 'GJ-17-AB-1301',
-    timeAgo: 'Yesterday',
-    timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-    vanId: 'van_2',
+    id: "ALT-0006",
+    severity: "info",
+    title: "Van GJ-17-GV-2401 PUC expires on 2026-11-13.",
+    detail: "Van GJ-17-GV-2401 PUC expires on 2026-11-13.",
+    timeAgo: formatAlertTimeAgo(260),
+    timestamp: minutesAgo(260),
+    driverPhone: "9825043241",
+    vanId: "VAN-01",
+    wardId: undefined,
+    complaintId: undefined,
     acknowledged: true
   }
 ];
 
+// 9. AUDIT LOGS (10 Immutable Audit Trail Records)
 export const SEED_AUDIT_LOGS: AuditLogEntry[] = [
   {
-    id: 'aud_1',
-    time: '09:42',
-    user: { name: 'Meena Parmar', role: 'inspector', initials: 'MP' },
-    role: 'inspector',
-    action: 'Enrolled driver',
-    target: 'GJ-0048',
-    device: 'Chrome, Godhra'
+    id: "AUD-0001",
+    time: formatAuditTime(40),
+    user: {"name":"Smt. P. K. Rathod","role":"inspector","initials":"PK"},
+    role: "inspector",
+    action: "notice.send",
+    target: "W11",
+    device: "Chrome, Godhra"
   },
   {
-    id: 'aud_2',
-    time: '09:30',
-    user: { name: 'System', role: 'inspector', initials: 'SY' },
-    role: 'inspector',
-    action: 'Escalated complaint',
-    target: 'PMH-...0341',
-    device: 'Automatic'
+    id: "AUD-0002",
+    time: formatAuditTime(70),
+    user: {"name":"Smt. M. J. Desai","role":"chief_officer","initials":"MJ"},
+    role: "chief_officer",
+    action: "complaint.assign",
+    target: "PMH-20261103-0002",
+    device: "Chrome, Godhra"
   },
   {
-    id: 'aud_3',
-    time: '09:12',
-    user: { name: 'Rakesh Shah', role: 'chief_officer', initials: 'RS' },
-    role: 'chief_officer',
-    action: 'Created ward',
-    target: 'Ward 9 (9 points)',
-    device: 'Chrome, Godhra'
+    id: "AUD-0003",
+    time: formatAuditTime(140),
+    user: {"name":"Smt. M. J. Desai","role":"chief_officer","initials":"MJ"},
+    role: "chief_officer",
+    action: "notice.send",
+    target: "VAN-01",
+    device: "Chrome, Godhra"
   },
   {
-    id: 'aud_4',
-    time: '08:50',
-    user: { name: 'Meena Parmar', role: 'inspector', initials: 'MP' },
-    role: 'inspector',
-    action: 'Allotted driver',
-    target: 'Ramesh Bhai to Ward 5',
-    device: 'Chrome, Godhra'
+    id: "AUD-0004",
+    time: formatAuditTime(170),
+    user: {"name":"Shri A. B. Chauhan","role":"inspector","initials":"AB"},
+    role: "inspector",
+    action: "driver.assign_wards",
+    target: "DR-1002",
+    device: "Chrome, Godhra"
   },
   {
-    id: 'aud_5',
-    time: '08:31',
-    user: { name: 'Rakesh Shah', role: 'chief_officer', initials: 'RS' },
-    role: 'chief_officer',
-    action: 'Registered van',
-    target: 'GJ-17-EF-3001',
-    device: 'Chrome, Godhra'
+    id: "AUD-0005",
+    time: formatAuditTime(1060),
+    user: {"name":"Smt. M. J. Desai","role":"chief_officer","initials":"MJ"},
+    role: "chief_officer",
+    action: "route.update",
+    target: "RT-GDR-03",
+    device: "Chrome, Godhra"
   },
   {
-    id: 'aud_6',
-    time: '08:05',
-    user: { name: 'Dr. A. Patel', role: 'ddo', initials: 'AP' },
-    role: 'ddo',
-    action: 'Changed escalation time',
-    target: 'Level 2: 48 h',
-    device: 'Firefox, Godhra'
+    id: "AUD-0006",
+    time: formatAuditTime(1330),
+    user: {"name":"Shri R. K. Patel","role":"ddo","initials":"RK"},
+    role: "ddo",
+    action: "staff.add",
+    target: "STF-INS-02",
+    device: "Chrome, Godhra"
   },
   {
-    id: 'aud_7',
-    time: 'Yesterday',
-    user: { name: 'Meena Parmar', role: 'inspector', initials: 'MP' },
-    role: 'inspector',
-    action: 'Reset PIN',
-    target: 'Suresh Vaja',
-    device: 'Chrome, Godhra'
+    id: "AUD-0007",
+    time: formatAuditTime(1480),
+    user: {"name":"Smt. P. K. Rathod","role":"inspector","initials":"PK"},
+    role: "inspector",
+    action: "complaint.resolve",
+    target: "PMH-20261102-0005",
+    device: "Chrome, Godhra"
+  },
+  {
+    id: "AUD-0008",
+    time: formatAuditTime(2380),
+    user: {"name":"Smt. M. J. Desai","role":"chief_officer","initials":"MJ"},
+    role: "chief_officer",
+    action: "van.register",
+    target: "VAN-06",
+    device: "Chrome, Godhra"
+  },
+  {
+    id: "AUD-0009",
+    time: formatAuditTime(2800),
+    user: {"name":"Shri A. B. Chauhan","role":"inspector","initials":"AB"},
+    role: "inspector",
+    action: "ward.polygon_edit",
+    target: "W08",
+    device: "Chrome, Godhra"
+  },
+  {
+    id: "AUD-0010",
+    time: formatAuditTime(3300),
+    user: {"name":"Shri R. K. Patel","role":"ddo","initials":"RK"},
+    role: "ddo",
+    action: "escalation.update",
+    target: "district",
+    device: "Chrome, Godhra"
   }
 ];
 
+// 10. SETTINGS
 export const SEED_SETTINGS: SettingsConfig = {
-  escalationL1Hours: 24,
-  escalationL2Hours: 48,
-  resolveTargetHours: 72,
-  categories: {
-    garbageDump: { targetHours: 48, notifyInspector: true },
-    openGutter: { targetHours: 72, notifyInspector: true },
-    missedCollection: { targetHours: 24, notifyInspector: true },
-    other: { targetHours: 72, notifyInspector: true },
+  "escalationL1Hours": 24,
+  "escalationL2Hours": 48,
+  "resolveTargetHours": 72,
+  "categories": {
+    "garbageDump": {
+      "targetHours": 48,
+      "notifyInspector": true
+    },
+    "openGutter": {
+      "targetHours": 72,
+      "notifyInspector": true
+    },
+    "missedCollection": {
+      "targetHours": 24,
+      "notifyInspector": true
+    },
+    "other": {
+      "targetHours": 72,
+      "notifyInspector": true
+    }
   },
-  alerts: {
-    vanOffline10m: true,
-    lateStart15m: true,
-    vanLeavesArea: true,
-    docExpiring30d: true,
-    threeMissedReports: false,
+  "alerts": {
+    "vanOffline10m": true,
+    "lateStart15m": true,
+    "vanLeavesArea": true,
+    "docExpiring30d": true,
+    "threeMissedReports": true
   }
 };
 
+// 11. TRIPS (10 Trips: trips[0] is flagged TRIP-20261030-01)
 export const SEED_TRIPS: Trip[] = [
   {
-    id: 'trip_ramesh_today',
-    vanId: 'van_1',
-    routeId: 'route_east',
-    driverId: 'drv_ramesh',
-    driverName: 'Ramesh Bhai',
-    date: '2026-10-31',
-    startedAt: '07:28',
+    id: "TRIP-20261030-01",
+    vanId: "VAN-01",
+    routeId: "RT-GDR-01",
+    driverId: "DR-1001",
+    driverName: "Rameshbhai B. Solanki",
+    date: daysAgoStr(4),
+    startedAt: "07:05",
+    endedAt: "11:20",
     wardsDone: [
-      { wardId: 'ward_4', doneAt: '08:15' },
-      { wardId: 'ward_5', doneAt: '09:00' },
-      { wardId: 'ward_6', doneAt: '09:40', flagged: true }
-    ],
-    alertedWardIds: ['ward_4', 'ward_5', 'ward_6'],
-    distanceKm: 42,
-    duration: '5 h 12 min',
-    stopsCount: 11,
-    flaggedCount: 1,
-    flaggedReason: 'Ward 6 marked done 220 m outside the boundary',
+      {
+            "wardId": "W01",
+            "doneAt": "07:50",
+            "flagged": false
+      },
+      {
+            "wardId": "W02",
+            "doneAt": "08:47",
+            "flagged": false
+      },
+      {
+            "wardId": "W03",
+            "doneAt": "09:44",
+            "flagged": false
+      },
+      {
+            "wardId": "W04",
+            "doneAt": "11:18",
+            "flagged": true
+      }
+],
+    alertedWardIds: ["W01","W02","W03","W04"],
     gpsTrail: [
-      { lat: 22.7750, lng: 73.6050, t: '07:30' },
-      { lat: 22.7758, lng: 73.6090, t: '07:45', isStop: true, stopDurationMin: 6 },
-      { lat: 22.7780, lng: 73.6120, t: '08:10' },
-      { lat: 22.7810, lng: 73.6160, t: '08:40', isStop: true, stopDurationMin: 12 },
-      { lat: 22.7830, lng: 73.6210, t: '09:15', isFlagged: true, flagReason: 'Ward 6 marked done 220 m outside boundary' },
-      { lat: 22.7790, lng: 73.6240, t: '10:00', isStop: true, stopDurationMin: 8 },
-      { lat: 22.7740, lng: 73.6210, t: '11:15' },
-      { lat: 22.7710, lng: 73.6160, t: '12:00', isStop: true, stopDurationMin: 15 },
-      { lat: 22.7680, lng: 73.6140, t: '12:42' }
-    ]
+      {
+            "lat": 22.785,
+            "lng": 73.61,
+            "t": "07:05",
+            "isStop": true,
+            "stopDurationMin": 14
+      },
+      {
+            "lat": 22.7835,
+            "lng": 73.6135,
+            "t": "07:47"
+      },
+      {
+            "lat": 22.782,
+            "lng": 73.617,
+            "t": "08:30",
+            "isStop": true,
+            "stopDurationMin": 14
+      },
+      {
+            "lat": 22.7805,
+            "lng": 73.62,
+            "t": "09:12",
+            "isFlagged": true,
+            "flagReason": "Ward marked done 220 m outside the boundary"
+      },
+      {
+            "lat": 22.779,
+            "lng": 73.623,
+            "t": "09:55",
+            "isStop": true,
+            "stopDurationMin": 14
+      },
+      {
+            "lat": 22.7775,
+            "lng": 73.617,
+            "t": "10:37"
+      },
+      {
+            "lat": 22.776,
+            "lng": 73.611,
+            "t": "11:20",
+            "isStop": true,
+            "stopDurationMin": 14
+      }
+],
+    mockLocationDetected: false,
+    distanceKm: 13.6,
+    duration: "4 h 15 min",
+    stopsCount: 4,
+    flaggedCount: 1,
+    flaggedReason: "Ward marked done 220 m outside the boundary"
+  },
+  {
+    id: "TRIP-20261102-01",
+    vanId: "VAN-01",
+    routeId: "RT-GDR-01",
+    driverId: "DR-1001",
+    driverName: "Rameshbhai B. Solanki",
+    date: daysAgoStr(1),
+    startedAt: "07:03",
+    endedAt: "11:12",
+    wardsDone: [
+      {
+            "wardId": "W01",
+            "doneAt": "07:48",
+            "flagged": false
+      },
+      {
+            "wardId": "W02",
+            "doneAt": "08:36",
+            "flagged": false
+      },
+      {
+            "wardId": "W03",
+            "doneAt": "09:41",
+            "flagged": false
+      },
+      {
+            "wardId": "W04",
+            "doneAt": "10:52",
+            "flagged": false
+      }
+],
+    alertedWardIds: ["W01","W02","W03","W04"],
+    gpsTrail: [
+      {
+            "lat": 22.785,
+            "lng": 73.61,
+            "t": "07:03",
+            "isStop": true,
+            "stopDurationMin": 14
+      },
+      {
+            "lat": 22.7835,
+            "lng": 73.6135,
+            "t": "07:44"
+      },
+      {
+            "lat": 22.782,
+            "lng": 73.617,
+            "t": "08:26",
+            "isStop": true,
+            "stopDurationMin": 14
+      },
+      {
+            "lat": 22.7805,
+            "lng": 73.62,
+            "t": "09:07"
+      },
+      {
+            "lat": 22.779,
+            "lng": 73.623,
+            "t": "09:49",
+            "isStop": true,
+            "stopDurationMin": 14
+      },
+      {
+            "lat": 22.7775,
+            "lng": 73.617,
+            "t": "10:30"
+      },
+      {
+            "lat": 22.776,
+            "lng": 73.611,
+            "t": "11:12",
+            "isStop": true,
+            "stopDurationMin": 14
+      }
+],
+    mockLocationDetected: false,
+    distanceKm: 14.8,
+    duration: "4 h 09 min",
+    stopsCount: 4,
+    flaggedCount: 0,
+    flaggedReason: "Ward marked done 220 m outside the boundary"
+  },
+  {
+    id: "TRIP-20261101-01",
+    vanId: "VAN-01",
+    routeId: "RT-GDR-01",
+    driverId: "DR-1001",
+    driverName: "Rameshbhai B. Solanki",
+    date: daysAgoStr(2),
+    startedAt: "07:10",
+    endedAt: "11:05",
+    wardsDone: [
+      {
+            "wardId": "W01",
+            "doneAt": "07:55",
+            "flagged": false
+      },
+      {
+            "wardId": "W02",
+            "doneAt": "08:44",
+            "flagged": false
+      },
+      {
+            "wardId": "W03",
+            "doneAt": "09:38",
+            "flagged": false
+      },
+      {
+            "wardId": "W04",
+            "doneAt": "10:47",
+            "flagged": false
+      }
+],
+    alertedWardIds: ["W01","W02","W03","W04"],
+    gpsTrail: [
+      {
+            "lat": 22.785,
+            "lng": 73.61,
+            "t": "07:10",
+            "isStop": true,
+            "stopDurationMin": 14
+      },
+      {
+            "lat": 22.7835,
+            "lng": 73.6135,
+            "t": "07:49"
+      },
+      {
+            "lat": 22.782,
+            "lng": 73.617,
+            "t": "08:28",
+            "isStop": true,
+            "stopDurationMin": 14
+      },
+      {
+            "lat": 22.7805,
+            "lng": 73.62,
+            "t": "09:07"
+      },
+      {
+            "lat": 22.779,
+            "lng": 73.623,
+            "t": "09:46",
+            "isStop": true,
+            "stopDurationMin": 14
+      },
+      {
+            "lat": 22.7775,
+            "lng": 73.617,
+            "t": "10:25"
+      },
+      {
+            "lat": 22.776,
+            "lng": 73.611,
+            "t": "11:05",
+            "isStop": true,
+            "stopDurationMin": 14
+      }
+],
+    mockLocationDetected: false,
+    distanceKm: 15.3,
+    duration: "3 h 55 min",
+    stopsCount: 4,
+    flaggedCount: 0,
+    flaggedReason: "Ward marked done 220 m outside the boundary"
+  },
+  {
+    id: "TRIP-20261031-01",
+    vanId: "VAN-01",
+    routeId: "RT-GDR-01",
+    driverId: "DR-1001",
+    driverName: "Rameshbhai B. Solanki",
+    date: daysAgoStr(3),
+    startedAt: "07:02",
+    endedAt: "10:58",
+    wardsDone: [
+      {
+            "wardId": "W01",
+            "doneAt": "07:44",
+            "flagged": false
+      },
+      {
+            "wardId": "W02",
+            "doneAt": "08:39",
+            "flagged": false
+      },
+      {
+            "wardId": "W03",
+            "doneAt": "09:35",
+            "flagged": false
+      },
+      {
+            "wardId": "W04",
+            "doneAt": "10:41",
+            "flagged": false
+      }
+],
+    alertedWardIds: ["W01","W02","W03","W04"],
+    gpsTrail: [
+      {
+            "lat": 22.785,
+            "lng": 73.61,
+            "t": "07:02",
+            "isStop": true,
+            "stopDurationMin": 14
+      },
+      {
+            "lat": 22.7835,
+            "lng": 73.6135,
+            "t": "07:41"
+      },
+      {
+            "lat": 22.782,
+            "lng": 73.617,
+            "t": "08:20",
+            "isStop": true,
+            "stopDurationMin": 14
+      },
+      {
+            "lat": 22.7805,
+            "lng": 73.62,
+            "t": "09:00"
+      },
+      {
+            "lat": 22.779,
+            "lng": 73.623,
+            "t": "09:39",
+            "isStop": true,
+            "stopDurationMin": 14
+      },
+      {
+            "lat": 22.7775,
+            "lng": 73.617,
+            "t": "10:18"
+      },
+      {
+            "lat": 22.776,
+            "lng": 73.611,
+            "t": "10:58",
+            "isStop": true,
+            "stopDurationMin": 14
+      }
+],
+    mockLocationDetected: false,
+    distanceKm: 14.1,
+    duration: "3 h 56 min",
+    stopsCount: 4,
+    flaggedCount: 0,
+    flaggedReason: "Ward marked done 220 m outside the boundary"
+  },
+  {
+    id: "TRIP-20261029-01",
+    vanId: "VAN-01",
+    routeId: "RT-GDR-01",
+    driverId: "DR-1001",
+    driverName: "Rameshbhai B. Solanki",
+    date: daysAgoStr(5),
+    startedAt: "07:00",
+    endedAt: "11:02",
+    wardsDone: [
+      {
+            "wardId": "W01",
+            "doneAt": "07:42",
+            "flagged": false
+      },
+      {
+            "wardId": "W02",
+            "doneAt": "08:35",
+            "flagged": false
+      },
+      {
+            "wardId": "W03",
+            "doneAt": "09:31",
+            "flagged": false
+      },
+      {
+            "wardId": "W04",
+            "doneAt": "10:50",
+            "flagged": false
+      }
+],
+    alertedWardIds: ["W01","W02","W03","W04"],
+    gpsTrail: [
+      {
+            "lat": 22.785,
+            "lng": 73.61,
+            "t": "07:00",
+            "isStop": true,
+            "stopDurationMin": 14
+      },
+      {
+            "lat": 22.7835,
+            "lng": 73.6135,
+            "t": "07:40"
+      },
+      {
+            "lat": 22.782,
+            "lng": 73.617,
+            "t": "08:20",
+            "isStop": true,
+            "stopDurationMin": 14
+      },
+      {
+            "lat": 22.7805,
+            "lng": 73.62,
+            "t": "09:01"
+      },
+      {
+            "lat": 22.779,
+            "lng": 73.623,
+            "t": "09:41",
+            "isStop": true,
+            "stopDurationMin": 14
+      },
+      {
+            "lat": 22.7775,
+            "lng": 73.617,
+            "t": "10:21"
+      },
+      {
+            "lat": 22.776,
+            "lng": 73.611,
+            "t": "11:02",
+            "isStop": true,
+            "stopDurationMin": 14
+      }
+],
+    mockLocationDetected: false,
+    distanceKm: 14.4,
+    duration: "4 h 02 min",
+    stopsCount: 4,
+    flaggedCount: 0,
+    flaggedReason: "Ward marked done 220 m outside the boundary"
+  },
+  {
+    id: "TRIP-20261103-01",
+    vanId: "VAN-01",
+    routeId: "RT-GDR-01",
+    driverId: "DR-1001",
+    driverName: "Rameshbhai B. Solanki",
+    date: daysAgoStr(0),
+    startedAt: "07:05",
+    endedAt: undefined,
+    wardsDone: [
+      {
+            "wardId": "W01",
+            "doneAt": "07:52",
+            "flagged": false
+      },
+      {
+            "wardId": "W02",
+            "doneAt": "08:41",
+            "flagged": false
+      }
+],
+    alertedWardIds: ["W01","W02"],
+    gpsTrail: [
+      {
+            "lat": 22.785,
+            "lng": 73.61,
+            "t": "07:05",
+            "isStop": true,
+            "stopDurationMin": 14
+      },
+      {
+            "lat": 22.7835,
+            "lng": 73.6135,
+            "t": "07:37"
+      },
+      {
+            "lat": 22.782,
+            "lng": 73.617,
+            "t": "08:10",
+            "isStop": true,
+            "stopDurationMin": 14
+      },
+      {
+            "lat": 22.7805,
+            "lng": 73.62,
+            "t": "08:42"
+      },
+      {
+            "lat": 22.779,
+            "lng": 73.623,
+            "t": "09:15"
+      },
+      {
+            "lat": 22.7775,
+            "lng": 73.617,
+            "t": "09:47"
+      },
+      {
+            "lat": 22.776,
+            "lng": 73.611,
+            "t": "10:20"
+      }
+],
+    mockLocationDetected: false,
+    distanceKm: 6.4,
+    duration: undefined,
+    stopsCount: 2,
+    flaggedCount: 0,
+    flaggedReason: "Ward marked done 220 m outside the boundary"
+  },
+  {
+    id: "TRIP-20261103-02",
+    vanId: "VAN-02",
+    routeId: "RT-GDR-02",
+    driverId: "DR-1002",
+    driverName: "Kiranbhai J. Patel",
+    date: daysAgoStr(0),
+    startedAt: "07:34",
+    endedAt: undefined,
+    wardsDone: [
+      {
+            "wardId": "W05",
+            "doneAt": "08:12",
+            "flagged": false
+      },
+      {
+            "wardId": "W06",
+            "doneAt": "08:58",
+            "flagged": false
+      }
+],
+    alertedWardIds: ["W05","W06"],
+    gpsTrail: [
+      {
+            "lat": 22.774,
+            "lng": 73.618,
+            "t": "07:34",
+            "isStop": true,
+            "stopDurationMin": 14
+      },
+      {
+            "lat": 22.7725,
+            "lng": 73.6215,
+            "t": "08:15"
+      },
+      {
+            "lat": 22.771,
+            "lng": 73.625,
+            "t": "08:57",
+            "isStop": true,
+            "stopDurationMin": 14
+      },
+      {
+            "lat": 22.7695,
+            "lng": 73.6185,
+            "t": "09:38"
+      },
+      {
+            "lat": 22.768,
+            "lng": 73.612,
+            "t": "10:20"
+      }
+],
+    mockLocationDetected: false,
+    distanceKm: 5.1,
+    duration: undefined,
+    stopsCount: 2,
+    flaggedCount: 0,
+    flaggedReason: "Ward marked done 220 m outside the boundary"
+  },
+  {
+    id: "TRIP-20261103-03",
+    vanId: "VAN-03",
+    routeId: "RT-GDR-03",
+    driverId: "DR-1003",
+    driverName: "Mehulbhai R. Chauhan",
+    date: daysAgoStr(0),
+    startedAt: "08:02",
+    endedAt: undefined,
+    wardsDone: [
+      {
+            "wardId": "W08",
+            "doneAt": "08:40",
+            "flagged": false
+      }
+],
+    alertedWardIds: ["W08"],
+    gpsTrail: [
+      {
+            "lat": 22.765,
+            "lng": 73.62,
+            "t": "08:02",
+            "isStop": true,
+            "stopDurationMin": 14
+      },
+      {
+            "lat": 22.7735,
+            "lng": 73.625,
+            "t": "08:36"
+      },
+      {
+            "lat": 22.782,
+            "lng": 73.63,
+            "t": "09:11"
+      },
+      {
+            "lat": 22.78,
+            "lng": 73.633,
+            "t": "09:45"
+      },
+      {
+            "lat": 22.778,
+            "lng": 73.636,
+            "t": "10:20"
+      }
+],
+    mockLocationDetected: false,
+    distanceKm: 3.8,
+    duration: undefined,
+    stopsCount: 1,
+    flaggedCount: 0,
+    flaggedReason: "Ward marked done 220 m outside the boundary"
+  },
+  {
+    id: "TRIP-20261103-04",
+    vanId: "VAN-04",
+    routeId: "RT-GDR-04",
+    driverId: "DR-1004",
+    driverName: "Sanjaybhai K. Parmar",
+    date: daysAgoStr(0),
+    startedAt: "08:33",
+    endedAt: undefined,
+    wardsDone: [],
+    alertedWardIds: [],
+    gpsTrail: [
+      {
+            "lat": 22.772,
+            "lng": 73.642,
+            "t": "08:33"
+      },
+      {
+            "lat": 22.771,
+            "lng": 73.636,
+            "t": "08:59"
+      },
+      {
+            "lat": 22.77,
+            "lng": 73.63,
+            "t": "09:26"
+      },
+      {
+            "lat": 22.765,
+            "lng": 73.629,
+            "t": "09:53"
+      },
+      {
+            "lat": 22.76,
+            "lng": 73.628,
+            "t": "10:20"
+      }
+],
+    mockLocationDetected: false,
+    distanceKm: 1.2,
+    duration: undefined,
+    stopsCount: 0,
+    flaggedCount: 0,
+    flaggedReason: "Ward marked done 220 m outside the boundary"
+  },
+  {
+    id: "TRIP-20261103-06",
+    vanId: "VAN-06",
+    routeId: "RT-GDR-06",
+    driverId: "DR-1006",
+    driverName: "Alpeshbhai V. Baria",
+    date: daysAgoStr(0),
+    startedAt: "09:31",
+    endedAt: undefined,
+    wardsDone: [],
+    alertedWardIds: [],
+    gpsTrail: [
+      {
+            "lat": 22.784,
+            "lng": 73.626,
+            "t": "09:31"
+      },
+      {
+            "lat": 22.785,
+            "lng": 73.6275,
+            "t": "09:39"
+      },
+      {
+            "lat": 22.786,
+            "lng": 73.629,
+            "t": "09:47"
+      },
+      {
+            "lat": 22.787,
+            "lng": 73.6295,
+            "t": "09:55"
+      },
+      {
+            "lat": 22.788,
+            "lng": 73.63,
+            "t": "10:03"
+      },
+      {
+            "lat": 22.789,
+            "lng": 73.631,
+            "t": "10:11"
+      },
+      {
+            "lat": 22.79,
+            "lng": 73.632,
+            "t": "10:20"
+      }
+],
+    mockLocationDetected: false,
+    distanceKm: 0.9,
+    duration: undefined,
+    stopsCount: 0,
+    flaggedCount: 0,
+    flaggedReason: "Ward marked done 220 m outside the boundary"
   }
 ];
 
+// 12. NOTICES (6 Broadcast Notices)
 export const SEED_NOTICES: Notice[] = [
   {
-    id: 'not_1',
-    title: 'Route change tomorrow',
-    targetType: 'all',
-    message: 'Ward 7 is added to the East route from Monday. Please start with Ward 5 as usual.',
-    createdAt: 'Yesterday, 14:00',
-    createdBy: 'R. Shah',
-    when: 'Send now',
-    language: 'Gujarati and English',
-    deliveredCount: 5,
-    totalTarget: 5
-  },
-  {
-    id: 'not_2',
-    title: 'Holiday on Diwali',
-    targetType: 'all',
-    message: 'No collection on 12 Nov due to Diwali festival holiday.',
-    createdAt: '2 days ago',
-    createdBy: 'R. Shah',
-    when: 'Send now',
-    language: 'Gujarati and English',
+    id: "NTC-0001",
+    title: "Shift timing",
+    targetType: "all",
+    targetId: undefined,
+    wardIds: ["W01","W02","W03","W04","W05","W06","W07","W08","W09","W10","W11","W12","W13","W14","W15","W16"],
+    message: "Collection starts at 07:00 today. Please reach your first ward on time.",
+    createdAt: "Today, 06:30",
+    createdBy: "Smt. M. J. Desai",
+    when: "Send now",
+    language: "Gujarati and English",
+    photoUrl: undefined,
     deliveredCount: 6,
     totalTarget: 6
   },
   {
-    id: 'not_3',
-    title: 'Extra pickup near the market',
-    targetType: 'ward',
-    wardIds: ['ward_5'],
-    message: 'Extra pickup near Godhra market before 11:00 today.',
-    createdAt: 'Today, 06:30',
-    createdBy: 'Meena Parmar',
-    when: 'Send now',
-    language: 'Gujarati and English',
-    deliveredCount: 4,
-    totalTarget: 5
+    id: "NTC-0002",
+    title: "Festival day timing",
+    targetType: "ward",
+    targetId: "W05",
+    wardIds: ["W05"],
+    message: "Festival at Rampura today. Complete ward 5 before 09:00.",
+    createdAt: "Today, 07:10",
+    createdBy: "Smt. M. J. Desai",
+    when: "Send now",
+    language: "Gujarati and English",
+    photoUrl: undefined,
+    deliveredCount: 1,
+    totalTarget: 1
   },
   {
-    id: 'not_4',
-    title: 'Please start shift on time',
-    targetType: 'all',
-    message: 'Late starts will be reported automatically to district officers.',
-    createdAt: '3 days ago',
-    createdBy: 'Dr. A. Patel',
-    when: 'Send now',
-    language: 'English',
-    deliveredCount: 5,
-    totalTarget: 5
+    id: "NTC-0003",
+    title: "PUC renewal",
+    targetType: "van",
+    targetId: "VAN-01",
+    wardIds: ["W01","W02","W03","W04"],
+    message: "PUC expires on 13 Nov. Get it renewed this week.",
+    createdAt: "Today, 08:00",
+    createdBy: "Smt. M. J. Desai",
+    when: "Send now",
+    language: "English",
+    photoUrl: undefined,
+    deliveredCount: 1,
+    totalTarget: 1
+  },
+  {
+    id: "NTC-0004",
+    title: "Weather advisory",
+    targetType: "all",
+    targetId: undefined,
+    wardIds: ["W01","W02","W03","W04","W05","W06","W07","W08","W09","W10","W11","W12","W13","W14","W15","W16"],
+    message: "Heavy rain expected after 17:00. Finish routes early and report any blocked lane.",
+    createdAt: "Today, 09:15",
+    createdBy: "Smt. M. J. Desai",
+    when: "Send now",
+    language: "Gujarati and English",
+    photoUrl: undefined,
+    deliveredCount: 6,
+    totalTarget: 6
+  },
+  {
+    id: "NTC-0005",
+    title: "Gate closure",
+    targetType: "ward",
+    targetId: "W11",
+    wardIds: ["W11"],
+    message: "GIDC gate 3 is closed for repair. Use gate 5.",
+    createdAt: "Today, 09:40",
+    createdBy: "Smt. P. K. Rathod",
+    when: "Send now",
+    language: "Gujarati and English",
+    photoUrl: undefined,
+    deliveredCount: 1,
+    totalTarget: 1
+  },
+  {
+    id: "NTC-0006",
+    title: "Holiday roster",
+    targetType: "all",
+    targetId: undefined,
+    wardIds: ["W01","W02","W03","W04","W05","W06","W07","W08","W09","W10","W11","W12","W13","W14","W15","W16"],
+    message: "Diwali holiday roster is on the notice board. Check your duty date.",
+    createdAt: "2 days ago",
+    createdBy: "Smt. M. J. Desai",
+    when: "Send now",
+    language: "Gujarati and English",
+    photoUrl: undefined,
+    deliveredCount: 6,
+    totalTarget: 6
   }
 ];
 
+// 13. RATINGS (18 Public Satisfaction Ratings)
 export const SEED_RATINGS: Rating[] = [
-  { id: 'rat_1', wardId: 'ward_5', date: '2026-10-30', stars: 5, deviceId: 'dev_4f2a' },
-  { id: 'rat_2', wardId: 'ward_4', date: '2026-10-30', stars: 4, deviceId: 'dev_81ca' },
-  { id: 'rat_3', wardId: 'ward_6', date: '2026-10-29', stars: 4, deviceId: 'dev_3b1a' },
-  { id: 'rat_4', wardId: 'ward_7', date: '2026-10-29', stars: 3, deviceId: 'dev_77bc' }
+  {
+    id: "RAT-0001",
+    wardId: "W01",
+    date: daysAgoStr(0),
+    stars: 5,
+    deviceId: "DEV-DEMO-2000"
+  },
+  {
+    id: "RAT-0002",
+    wardId: "W02",
+    date: daysAgoStr(0),
+    stars: 4,
+    deviceId: "DEV-DEMO-2001"
+  },
+  {
+    id: "RAT-0003",
+    wardId: "W03",
+    date: daysAgoStr(0),
+    stars: 5,
+    deviceId: "DEV-DEMO-2002"
+  },
+  {
+    id: "RAT-0004",
+    wardId: "W04",
+    date: daysAgoStr(0),
+    stars: 4,
+    deviceId: "DEV-DEMO-2003"
+  },
+  {
+    id: "RAT-0005",
+    wardId: "W05",
+    date: daysAgoStr(0),
+    stars: 3,
+    deviceId: "DEV-DEMO-2004"
+  },
+  {
+    id: "RAT-0006",
+    wardId: "W06",
+    date: daysAgoStr(0),
+    stars: 5,
+    deviceId: "DEV-DEMO-2005"
+  },
+  {
+    id: "RAT-0007",
+    wardId: "W07",
+    date: daysAgoStr(0),
+    stars: 4,
+    deviceId: "DEV-DEMO-2006"
+  },
+  {
+    id: "RAT-0008",
+    wardId: "W08",
+    date: daysAgoStr(0),
+    stars: 4,
+    deviceId: "DEV-DEMO-2007"
+  },
+  {
+    id: "RAT-0009",
+    wardId: "W09",
+    date: daysAgoStr(0),
+    stars: 5,
+    deviceId: "DEV-DEMO-2008"
+  },
+  {
+    id: "RAT-0010",
+    wardId: "W10",
+    date: daysAgoStr(0),
+    stars: 2,
+    deviceId: "DEV-DEMO-2009"
+  },
+  {
+    id: "RAT-0011",
+    wardId: "W11",
+    date: daysAgoStr(0),
+    stars: 4,
+    deviceId: "DEV-DEMO-2010"
+  },
+  {
+    id: "RAT-0012",
+    wardId: "W12",
+    date: daysAgoStr(0),
+    stars: 5,
+    deviceId: "DEV-DEMO-2011"
+  },
+  {
+    id: "RAT-0013",
+    wardId: "W13",
+    date: daysAgoStr(0),
+    stars: 3,
+    deviceId: "DEV-DEMO-2012"
+  },
+  {
+    id: "RAT-0014",
+    wardId: "W14",
+    date: daysAgoStr(0),
+    stars: 4,
+    deviceId: "DEV-DEMO-2013"
+  },
+  {
+    id: "RAT-0015",
+    wardId: "W15",
+    date: daysAgoStr(0),
+    stars: 5,
+    deviceId: "DEV-DEMO-2014"
+  },
+  {
+    id: "RAT-0016",
+    wardId: "W16",
+    date: daysAgoStr(0),
+    stars: 4,
+    deviceId: "DEV-DEMO-2015"
+  },
+  {
+    id: "RAT-0017",
+    wardId: "W01",
+    date: daysAgoStr(0),
+    stars: 4,
+    deviceId: "DEV-DEMO-2016"
+  },
+  {
+    id: "RAT-0018",
+    wardId: "W06",
+    date: daysAgoStr(0),
+    stars: 5,
+    deviceId: "DEV-DEMO-2017"
+  }
 ];
 
+// 14. REPORTS (4 Predefined Reports)
 export const SEED_REPORTS = [
-  { id: 'rep_1', name: 'Daily collection', range: '28 Oct', format: 'PDF', createdBy: 'M. Parmar' },
-  { id: 'rep_2', name: 'Complaint resolution', range: '1 to 28 Oct', format: 'CSV', createdBy: 'R. Shah' },
-  { id: 'rep_3', name: 'Driver performance', range: 'Week 43', format: 'PDF', createdBy: 'R. Shah' },
-  { id: 'rep_4', name: 'Contractor scorecard', range: 'Sep 2026', format: 'PDF', createdBy: 'Dr. A. Patel' }
+  {
+    "id": "REP-0001",
+    "name": "Daily collection",
+    "range": "03 Nov 2026",
+    "format": "PDF",
+    "createdBy": "Smt. M. J. Desai"
+  },
+  {
+    "id": "REP-0002",
+    "name": "Complaint resolution",
+    "range": "28 Oct to 03 Nov",
+    "format": "CSV",
+    "createdBy": "Shri A. B. Chauhan"
+  },
+  {
+    "id": "REP-0003",
+    "name": "Driver performance",
+    "range": "Week 44",
+    "format": "PDF",
+    "createdBy": "Smt. P. K. Rathod"
+  },
+  {
+    "id": "REP-0004",
+    "name": "Contractor scorecard",
+    "range": "Oct 2026",
+    "format": "PDF",
+    "createdBy": "Shri R. K. Patel"
+  }
 ];
