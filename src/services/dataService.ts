@@ -30,7 +30,7 @@ import {
   SEED_REPORTS
 } from './seedData';
 
-const STORAGE_KEY_PREFIX = 'safai_v5_';
+const STORAGE_KEY_PREFIX = 'safai_v6_';
 
 function getStoredOr<T>(key: string, fallback: T): T {
   try {

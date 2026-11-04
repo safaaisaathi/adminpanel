@@ -29,6 +29,9 @@ const server = http.createServer((req, res) => {
   if (reqPath.startsWith('/admin-panel')) {
     reqPath = reqPath.slice('/admin-panel'.length);
   }
+  if (reqPath.startsWith('/adminpanel')) {
+    reqPath = reqPath.slice('/adminpanel'.length);
+  }
   if (reqPath.startsWith('/safaai-sathi')) {
     reqPath = reqPath.slice('/safaai-sathi'.length);
   }
