@@ -109,6 +109,10 @@ export const en = {
     garbage_dump: 'Garbage Dump',
     open_gutter: 'Open Gutter',
     missed_collection: 'Missed Collection',
+    dead_animal: 'Dead Animal',
+    public_toilet: 'Public Toilet',
+    construction_debris: 'Construction Debris',
+    hazardous_waste: 'Hazardous Waste',
     other: 'Other Sanitation Issue',
   },
 

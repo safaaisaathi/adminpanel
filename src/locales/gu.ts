@@ -109,6 +109,10 @@ export const gu = {
     garbage_dump: 'કચરાનો ઢગલો',
     open_gutter: 'ખુલ્લી ગટર',
     missed_collection: 'કચરો લેવા ન આવ્યા',
+    dead_animal: 'મૃત પ્રાણી',
+    public_toilet: 'જાહેર શૌચાલય',
+    construction_debris: 'બાંધકામનો કચરો (કાટમાળ)',
+    hazardous_waste: 'જોખમી કચરો',
     other: 'અન્ય સફાઈ પ્રશ્ન',
   },
 
