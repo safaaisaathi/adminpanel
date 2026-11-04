@@ -27,9 +27,12 @@ export const A03_Staff: React.FC = () => {
   const [selectedWards, setSelectedWards] = useState<string[]>(['ward_5', 'ward_6']);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  const officersCount = availableStaff.filter((s) => s.role === 'chief_officer' || s.role === 'tdo' || s.role === 'ddo').length;
+  const inspectorsCount = availableStaff.filter((s) => s.role === 'inspector').length;
+
   // Filtered staff list
   const filteredStaff = availableStaff.filter((s) => {
-    if (activeFilter === 'officers') return s.role === 'chief_officer' || s.role === 'tdo';
+    if (activeFilter === 'officers') return s.role === 'chief_officer' || s.role === 'tdo' || s.role === 'ddo';
     if (activeFilter === 'inspectors') return s.role === 'inspector';
     return true;
   });
@@ -85,7 +88,7 @@ export const A03_Staff: React.FC = () => {
                 : 'bg-white dark:bg-[#16221B] text-[#566259] dark:text-[#9DB0A2] border border-[#E5EAE3] dark:border-[#2A3B31]'
             }`}
           >
-            {activeFilter === 'all' && '✓ '}All 38
+            {activeFilter === 'all' && '✓ '}All {availableStaff.length}
           </button>
           <button
             onClick={() => setActiveFilter('officers')}
@@ -95,7 +98,7 @@ export const A03_Staff: React.FC = () => {
                 : 'bg-white dark:bg-[#16221B] text-[#566259] dark:text-[#9DB0A2] border border-[#E5EAE3] dark:border-[#2A3B31]'
             }`}
           >
-            {activeFilter === 'officers' && '✓ '}Chief Officers and TDOs 6
+            {activeFilter === 'officers' && '✓ '}Chief Officers and TDOs {officersCount}
           </button>
           <button
             onClick={() => setActiveFilter('inspectors')}
@@ -105,7 +108,7 @@ export const A03_Staff: React.FC = () => {
                 : 'bg-white dark:bg-[#16221B] text-[#566259] dark:text-[#9DB0A2] border border-[#E5EAE3] dark:border-[#2A3B31]'
             }`}
           >
-            {activeFilter === 'inspectors' && '✓ '}Inspectors 32
+            {activeFilter === 'inspectors' && '✓ '}Inspectors {inspectorsCount}
           </button>
         </div>
 
